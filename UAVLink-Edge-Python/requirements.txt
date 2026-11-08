@@ -1,0 +1,30 @@
+# =============================================================================
+# UAVLink-Edge-Python — dependencies
+# =============================================================================
+# CÀI ĐẶT ĐẦY ĐỦ (khuyến nghị — apt + venv + pip một lần):
+#   python3 install.py
+#
+# Hoặc đã có venv:
+#   source venv/bin/activate
+#   pip install -r requirements.txt     ← tự cài apt trước (dòng ./_bootstrap)
+#
+# Chạy app:
+#   source venv/bin/activate && python main.py --register   # lần đầu
+#   sudo python main.py                                     # VPN/wg-quick
+# =============================================================================
+
+# Bootstrap: apt install trước picamera2 / wireguard (nội bộ, không import)
+./_bootstrap
+
+# Core — MAVLink bridge, web API, auth, network monitor
+pymavlink
+pyserial
+pyyaml
+flask
+requests
+psutil
+
+# Camera / landing (Find_landing: camera_streamer — picamera2 via apt python3-picamera2)
+numpy
+opencv-python-headless
+# picamera2: cài qua apt (python3-picamera2), streamer dùng /usr/bin/python3 nếu venv thiếu

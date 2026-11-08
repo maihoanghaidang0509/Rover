@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureToken Manager - UAVLink-Edge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="common-nav.css" rel="stylesheet">
+    <script src="common-nav.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                850: '#1e293b',
+                900: '#0f172a',
+                950: '#020617',
+              },
+              cyan: {
+                450: '#16a3b9',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: #0f172a; }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #475569; }
+      
+      .animate-in { animation: fadeIn 0.3s ease-out; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .dot { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 font-sans antialiased overflow-hidden min-h-screen">
+    <header class="db-shell-header">
+        <a href="/dashboard.html" class="db-back-btn">← Về Dashboard</a>
+        <h1 class="db-shell-title">🔐 SecureToken Manager</h1>
+    </header>
+    <div id="app" class="flex flex-col md:flex-row" style="height:calc(100vh - 52px);">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col flex-shrink-0 z-20">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/50" style="box-shadow: 0 0 15px rgba(6,182,212,0.2);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+                </div>
+                <div>
+                    <span class="text-lg font-bold tracking-tight text-white block">SecureToken</span>
+                    <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Manager</span>
+                </div>
+            </div>
+
+            <div class="p-4 space-y-2 flex-1">
+                <button onclick="setView('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-slate-800/80 text-cyan-400 border border-slate-700/50 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
+                    <span class="font-medium text-sm">API Keys</span>
+                </button>
+                <button onclick="setView('history')" id="nav-history" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                    <span class="font-medium text-sm">Lịch sử (Audit Log)</span>
+                </button>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center border border-slate-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-300"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-white truncate">Admin</p>
+                        <p class="text-xs text-slate-500 truncate">admin@system.local</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-slate-950 relative">
+            <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-cyan-900/10 to-transparent pointer-events-none"></div>
+
+            <!-- Header -->
+            <header class="h-20 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md flex items-center justify-between px-8 shrink-0 z-10">
+                <h1 id="view-title" class="text-2xl font-bold text-slate-100 flex items-center gap-2">API Keys</h1>
+                <button onclick="openCreateModal()" id="create-btn" class="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-cyan-900/20 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    <span>Create API Key</span>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 scroll-smooth z-0">
+                <div class="max-w-6xl mx-auto">
+                    <!-- Dashboard View -->
+                    <div id="view-dashboard">
+                        <div class="flex justify-between items-end mb-2">
+                            <p class="text-slate-400 text-sm">
+                                Mỗi drone chỉ có <strong class="text-slate-300">một API key</strong> tại một thời điểm. Hủy key cũ trước khi tạo key mới.
+                            </p>
+                        </div>
+                        <div id="active-tokens-container" class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                            <!-- Tokens will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- History View -->
+                    <div id="view-history" class="hidden space-y-4 animate-in">
+                        <div class="flex items-center justify-between bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-sm">
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                                <span class="text-sm font-medium">Lọc lịch sử</span>
+                            </div>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                <input type="text" id="search-input" oninput="filterHistory()" placeholder="Tìm theo User hoặc ID..." class="bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50 w-64 placeholder:text-slate-600" />
+                            </div>
+                        </div>
+                        <div id="history-container" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+                            <!-- History will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Token Modal -->
+    <div id="create-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl animate-in">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/50 rounded-t-2xl">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <div class="p-1.5 bg-cyan-500/10 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    </div>
+                    Tạo API Key Mới
+                </h3>
+                <button onclick="closeCreateModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-6">
+                    <label class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
+                        Thời hạn hiệu lực (Duration)
+                    </label>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg focus-within:ring-1 focus-within:ring-cyan-500/50 focus-within:border-cyan-500/50 transition-all overflow-hidden">
+                                <input type="number" id="create-days" min="0" max="30" value="1" class="w-full bg-transparent text-slate-200 text-sm pl-4 py-3 focus:outline-none font-mono placeholder:text-slate-600" />
+                                <span class="text-slate-500 text-xs font-bold px-4 border-l border-slate-800 bg-slate-900/50 py-3 select-none">NGÀY</span>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg focus-within:ring-1 focus-within:ring-cyan-500/50 focus-within:border-cyan-500/50 transition-all overflow-hidden">
+                                <input type="number" id="create-hours" min="0" max="23" value="0" class="w-full bg-transparent text-slate-200 text-sm pl-4 py-3 focus:outline-none font-mono placeholder:text-slate-600" />
+                                <span class="text-slate-500 text-xs font-bold px-4 border-l border-slate-800 bg-slate-900/50 py-3 select-none">GIỜ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-[11px] text-slate-500 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        Tối thiểu: 1 giờ • Tối đa: 30 ngày
+                    </p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button onclick="closeCreateModal()" class="px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors text-sm font-medium">
+                        Hủy bỏ
+                    </button>
+                    <button onclick="handleCreateToken()" class="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors font-medium text-sm shadow-lg shadow-cyan-900/20">
+                        Tạo Token
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adjust Expiry Modal -->
+    <div id="adjust-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md shadow-2xl animate-in">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950/50 rounded-t-2xl">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Điều chỉnh hạn
+                </h3>
+                <button onclick="closeAdjustModal()" class="text-slate-500 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-slate-400 text-sm mb-5 leading-relaxed">
+                    Thiết lập lại thời gian hết hạn chính xác cho token <span id="adjust-token-preview" class="font-mono text-cyan-400 bg-cyan-950/30 px-1 rounded"></span>. Bạn có thể tăng hoặc giảm thời gian.
+                </p>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">
+                        Thời điểm hết hạn mới
+                    </label>
+                    <input type="datetime-local" id="new-expiry-date" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all font-mono" style="color-scheme: dark;" />
+                    <p id="current-expiry-text" class="mt-2 text-xs text-slate-500"></p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeAdjustModal()" class="flex-1 py-2.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors font-medium text-sm">
+                        Hủy
+                    </button>
+                    <button onclick="handleSaveAdjust()" class="flex-1 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors font-medium text-sm shadow-lg shadow-cyan-900/20">
+                        Cập nhật
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-sm text-slate-100 shadow-xl"></div>
+
+    <script>
+        const API = {
+            status: '/api/v1/drone/api-key/status',
+            request: '/api/v1/drone/api-key/request',
+            revoke: '/api/v1/drone/api-key/revoke',
+            delete: '/api/v1/drone/api-key/delete',
+        };
+        const HISTORY_KEY = 'db-token-history';
+
+        let tokens = [];
+        let currentView = 'dashboard';
+        let adjustingTokenId = null;
+        let visibleTokens = new Set();
+        let historyTokens = [];
+
+        function loadHistory() {
+            try {
+                historyTokens = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            } catch (e) {
+                historyTokens = [];
+            }
+        }
+
+        function saveHistory() {
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(historyTokens.slice(0, 50)));
+        }
+
+        function pushHistory(entry) {
+            historyTokens.unshift(entry);
+            saveHistory();
+        }
+
+        function showToast(msg, isError) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'fixed bottom-6 right-6 z-[60] px-4 py-2.5 rounded-lg text-sm shadow-xl border ' +
+                (isError ? 'bg-red-950 border-red-800 text-red-200' : 'bg-slate-800 border-slate-700 text-slate-100');
+            el.classList.remove('hidden');
+            clearTimeout(showToast._t);
+            showToast._t = setTimeout(() => el.classList.add('hidden'), 2500);
+        }
+
+        function apiStatusToToken(data) {
+            if (!data || !data.has_active_key || !data.api_key) return null;
+            const connected = data.status === 'connected';
+            return {
+                id: 'current',
+                tokenKey: data.api_key,
+                createdAt: data.created_at || new Date().toISOString(),
+                expiresAt: data.expires_at || new Date().toISOString(),
+                status: 'active',
+                lastState: connected ? 'connected' : 'pending',
+                connectedUser: data.username || (connected && data.user_uuid ? data.user_uuid.substring(0, 8) + '…' : null),
+            };
+        }
+
+        async function fetchTokenStatus() {
+            const res = await fetch(API.status, { cache: 'no-store' });
+            const data = await res.json();
+            if (!res.ok && !data) throw new Error('Không lấy được trạng thái token');
+            return data;
+        }
+
+        async function loadTokens() {
+            try {
+                const data = await fetchTokenStatus();
+                const current = apiStatusToToken(data);
+                tokens = current ? [current] : [];
+                updateCreateButton();
+            } catch (e) {
+                console.error(e);
+                showToast('Lỗi tải token: ' + e.message, true);
+                tokens = [];
+            }
+            renderView();
+        }
+
+        function updateCreateButton() {
+            const btn = document.getElementById('create-btn');
+            if (!btn) return;
+            const span = btn.querySelector('span');
+            if (getActiveTokens().length > 0) {
+                if (span) span.textContent = 'Thay API Key';
+                btn.title = 'Hủy key hiện tại và tạo key mới';
+            } else {
+                if (span) span.textContent = 'Create API Key';
+                btn.title = 'Tạo API key mới';
+            }
+        }
+
+        function parseApiError(data, fallback) {
+            const msg = (data && data.error) ? String(data.error) : fallback;
+            if (/0x01|already has an active|active API key/i.test(msg)) {
+                return 'Đã có API key đang hoạt động — hãy hủy key cũ trước khi tạo mới';
+            }
+            if (/0x05/i.test(msg)) {
+                return 'Server từ chối tạo key (có thể key cũ vẫn còn) — thử Hủy key rồi tạo lại';
+            }
+            return msg;
+        }
+
+        async function revokeCurrentKey() {
+            const res = await fetch(API.revoke, { method: 'DELETE' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(parseApiError(data, 'Hủy token thất bại'));
+            return data;
+        }
+
+        // --- Helpers ---
+        function maskKey(key) {
+            if (!key || key.length <= 6) return '••••••';
+            return key.substring(0, 4) + '••••••••' + key.substring(key.length - 2);
+        }
+
+        function formatDate(isoString) {
+            return new Date(isoString).toLocaleString('vi-VN', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function formatDateShort(isoString) {
+            return new Date(isoString).toLocaleDateString('vi-VN');
+        }
+
+        function formatTimeShort(isoString) {
+            return new Date(isoString).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getTimeRemaining(expiresAt) {
+            const total = Date.parse(expiresAt) - Date.now();
+            if (total <= 0) return "Expired";
+            
+            const days = Math.floor(total / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((total / 1000 / 60) % 60);
+
+            if (days > 0) return `${days}d ${hours}h`;
+            return `${hours}h ${minutes}m`;
+        }
+
+        function getActiveTokens() {
+            return tokens
+                .filter(t => t.status === 'active' && new Date(t.expiresAt).getTime() > Date.now())
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+
+        function getHistoryTokens() {
+            return historyTokens
+                .slice()
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+
+        // --- View Management ---
+        function setView(view) {
+            currentView = view;
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/30';
+            });
+            
+            const activeBtn = document.getElementById(`nav-${view}`);
+            if (activeBtn) {
+                activeBtn.className = 'nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-slate-800/80 text-cyan-400 border border-slate-700/50 shadow-sm';
+            }
+            
+            // Update view title and create button
+            const viewTitle = document.getElementById('view-title');
+            const createBtn = document.getElementById('create-btn');
+            
+            if (view === 'dashboard') {
+                viewTitle.textContent = 'API Keys';
+                createBtn.classList.remove('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                document.getElementById('view-history').classList.add('hidden');
+            } else {
+                viewTitle.textContent = 'Nhật ký hoạt động';
+                createBtn.classList.add('hidden');
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-history').classList.remove('hidden');
+            }
+            
+            renderView();
+        }
+
+        // --- Rendering ---
+        function renderView() {
+            if (currentView === 'dashboard') {
+                renderActiveTokens();
+            } else {
+                renderHistory();
+            }
+        }
+
+        function renderActiveTokens() {
+            const container = document.getElementById('active-tokens-container');
+            const activeTokens = getActiveTokens();
+            
+            if (activeTokens.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-500">
+                        <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-slate-300 mb-1">Chưa có API Key nào</h3>
+                        <p class="text-sm max-w-sm text-center mb-6">Tạo key mới để cấp quyền truy cập cho ứng dụng hoặc người dùng.</p>
+                        <button onclick="openCreateModal()" class="text-cyan-400 hover:text-cyan-300 text-sm font-medium">
+                            + Tạo key đầu tiên
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 bg-slate-950/30">
+                            <th class="p-4 pl-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/3">Token Key</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái kết nối</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ngày tạo</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Hết hạn</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right pr-6">Tác vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50">
+            `;
+            
+            activeTokens.forEach(token => {
+                const isVisible = visibleTokens.has(token.id);
+                const displayKey = isVisible ? token.tokenKey : maskKey(token.tokenKey);
+                
+                html += `
+                    <tr class="group hover:bg-slate-800/20 transition-colors">
+                        <td class="p-4 pl-6">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-slate-800 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-mono text-sm text-slate-200 font-medium tracking-tight w-[280px] inline-block truncate align-bottom">${displayKey}</span>
+                                        <button onclick="toggleVisibility('${token.id}')" class="text-slate-600 hover:text-slate-400 transition-colors" title="${isVisible ? 'Ẩn' : 'Hiện'}">
+                                            ${isVisible ? 
+                                                '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>' :
+                                                '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>'
+                                            }
+                                        </button>
+                                        <button onclick="copyToClipboard('${token.tokenKey}')" class="text-slate-600 hover:text-cyan-400 transition-colors ml-1" title="Copy">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            ${token.lastState === 'connected' ? `
+                                <div class="flex flex-col">
+                                    <span class="flex items-center gap-1.5 text-sm text-emerald-400 font-medium">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg> Connected
+                                    </span>
+                                    ${token.connectedUser ? `
+                                        <span class="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            ${token.connectedUser}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            ` : `
+                                <span class="flex items-center gap-1.5 text-sm text-slate-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pending Connection
+                                </span>
+                            `}
+                        </td>
+                        <td class="p-4">
+                            <span class="text-sm text-slate-300 font-mono">${formatDateShort(token.createdAt)}</span>
+                            <div class="text-xs text-slate-600">${formatTimeShort(token.createdAt)}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm text-slate-300 font-mono">${formatDateShort(token.expiresAt)}</span>
+                                <span class="text-xs text-orange-400/80 mt-0.5 flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+                                    ${getTimeRemaining(token.expiresAt)} remaining
+                                </span>
+                            </div>
+                        </td>
+                        <td class="p-4 pr-6 text-right">
+                            <div class="flex items-center justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <button onclick="openAdjustModal('${token.id}')" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all border border-transparent hover:border-slate-700" title="Điều chỉnh hạn (Adjust Expiry)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                                <button onclick="handleRevoke('${token.id}')" class="p-2 text-red-500/80 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-all border border-transparent hover:border-red-900/30" title="Hủy Token (Revoke)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            let historyTokens = getHistoryTokens();
+            
+            if (searchQuery) {
+                historyTokens = historyTokens.filter(t => 
+                    t.tokenKey.toLowerCase().includes(searchQuery) || 
+                    (t.connectedUser && t.connectedUser.toLowerCase().includes(searchQuery))
+                );
+            }
+            
+            let html = `
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 bg-slate-950/50">
+                            <th class="p-4 pl-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Token Key</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Thời gian tạo</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Thời gian đóng</th>
+                            <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right pr-6">User</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+            `;
+            
+            if (historyTokens.length === 0) {
+                html += `
+                    <tr>
+                        <td colspan="5" class="p-12 text-center text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2 opacity-50"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                            Không tìm thấy dữ liệu lịch sử.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                historyTokens.forEach(token => {
+                    html += `
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="p-4 pl-6">
+                                <span class="font-mono text-xs text-slate-400">${token.tokenKey.substring(0, 24)}...</span>
+                            </td>
+                            <td class="p-4">
+                                ${token.status === 'revoked' ? 
+                                    '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-red-950/20 text-red-400 border border-red-900/20">Revoked</span>' :
+                                    '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-500 border border-slate-700">Expired</span>'
+                                }
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs text-slate-400 font-mono">${formatDate(token.createdAt)}</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs text-slate-400 font-mono">${formatDate(token.expiresAt)}</span>
+                            </td>
+                            <td class="p-4 pr-6 text-right">
+                                ${token.connectedUser ? 
+                                    `<span class="text-xs text-slate-300 font-medium">${token.connectedUser}</span>` :
+                                    '<span class="text-slate-600 text-xs italic">--</span>'
+                                }
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function filterHistory() {
+            renderHistory();
+        }
+
+        // --- Actions ---
+        function toggleVisibility(id) {
+            if (visibleTokens.has(id)) {
+                visibleTokens.delete(id);
+            } else {
+                visibleTokens.add(id);
+            }
+            renderActiveTokens();
+        }
+
+        function copyToClipboard(text) {
+            if (!text || text.includes('•')) {
+                showToast('Bấm icon mắt để hiện token trước khi copy', true);
+                return;
+            }
+            const done = () => showToast('Đã copy token');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(done).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+            function fallbackCopy() {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;left:-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    done();
+                } catch (e) {
+                    showToast('Không copy được — chọn và copy thủ công', true);
+                }
+                document.body.removeChild(ta);
+            }
+        }
+
+        function openCreateModal() {
+            if (getActiveTokens().length > 0) {
+                if (!confirm('Drone chỉ có 1 API key. Tạo key mới sẽ HỦY key hiện tại trước. Tiếp tục?')) return;
+            }
+            document.getElementById('create-modal').classList.remove('hidden');
+            document.getElementById('create-days').value = 1;
+            document.getElementById('create-hours').value = 0;
+        }
+
+        function closeCreateModal() {
+            document.getElementById('create-modal').classList.add('hidden');
+        }
+
+        async function handleCreateToken() {
+            const days = parseInt(document.getElementById('create-days').value) || 0;
+            const hours = parseInt(document.getElementById('create-hours').value) || 0;
+            const totalMinutes = days * 24 * 60 + hours * 60;
+            if (totalMinutes < 60 || days > 30) {
+                showToast('Thời gian không hợp lệ! Tối thiểu 1 giờ, tối đa 30 ngày.', true);
+                return;
+            }
+            const expirationHours = Math.max(1, Math.min(720, days * 24 + hours));
+
+            try {
+                const status = await fetchTokenStatus();
+                if (status.has_active_key && status.api_key) {
+                    const old = tokens.find(t => t.id === 'current');
+                    await revokeCurrentKey();
+                    if (old) {
+                        pushHistory({
+                            id: 'revoked-' + Date.now(),
+                            tokenKey: old.tokenKey,
+                            createdAt: old.createdAt,
+                            expiresAt: new Date().toISOString(),
+                            status: 'revoked',
+                            connectedUser: old.connectedUser,
+                        });
+                    }
+                    await new Promise(r => setTimeout(r, 300));
+                }
+
+                const res = await fetch(API.request, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ expiration_hours: expirationHours }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(parseApiError(data, 'Tạo token thất bại'), true);
+                    await loadTokens();
+                    return;
+                }
+                closeCreateModal();
+                visibleTokens.add('current');
+                showToast('Đã tạo API key mới');
+                await loadTokens();
+            } catch (e) {
+                showToast('Lỗi: ' + e.message, true);
+                await loadTokens();
+            }
+        }
+
+        async function handleRevoke(id) {
+            if (!confirm('Bạn có chắc chắn muốn hủy token này không? Hành động này không thể hoàn tác.')) return;
+            const token = tokens.find(t => t.id === id);
+            try {
+                await revokeCurrentKey();
+                if (token) {
+                    pushHistory({
+                        id: token.id + '-' + Date.now(),
+                        tokenKey: token.tokenKey,
+                        createdAt: token.createdAt,
+                        expiresAt: new Date().toISOString(),
+                        status: 'revoked',
+                        connectedUser: token.connectedUser,
+                    });
+                }
+                visibleTokens.delete(id);
+                showToast('Đã hủy token');
+                await loadTokens();
+            } catch (e) {
+                showToast('Lỗi: ' + e.message, true);
+            }
+        }
+
+        function openAdjustModal(id) {
+            showToast('Điều chỉnh hạn: hủy token hiện tại rồi tạo key mới với thời hạn mong muốn.', true);
+        }
+
+        function closeAdjustModal() {
+            document.getElementById('adjust-modal').classList.add('hidden');
+            adjustingTokenId = null;
+        }
+
+        function handleSaveAdjust() {
+            if (!adjustingTokenId) return;
+            
+            const newExpiryValue = document.getElementById('new-expiry-date').value;
+            if (!newExpiryValue) return;
+            
+            const newDate = new Date(newExpiryValue);
+            if (newDate.getTime() <= Date.now()) {
+                alert("Thời gian hết hạn phải lớn hơn thời gian hiện tại!");
+                return;
+            }
+            
+            const token = tokens.find(t => t.id === adjustingTokenId);
+            if (token) {
+                token.expiresAt = newDate.toISOString();
+            }
+            
+            closeAdjustModal();
+            renderView();
+        }
+
+        function init() {
+            loadHistory();
+            loadTokens();
+            setView('dashboard');
+            setInterval(loadTokens, 15000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

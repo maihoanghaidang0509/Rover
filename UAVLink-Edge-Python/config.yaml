@@ -1,0 +1,158 @@
+auth:
+  enabled: fasle
+  host: 45.117.171.237
+  port: 5770
+  uuid: 00000010-0000-0000-0000-000000000010
+  shared_secret: drone-fleet-shared-secret-auth-key-2025
+  keepalive_interval: 30
+  session_heartbeat_frequency: 1.0
+  vehicle_type: 0
+  model: ''
+network:
+  connection_type: prefer_ethernet
+  serial_port: /dev/ttyAMA2
+  serial_baud: 921600
+  tcp_host: 0.0.0.0
+  tcp_port: 14540
+  local_listen_port: 14550
+  target_host: 100.111.253.13
+  target_port: 14550
+  protocol: udp
+  mode: prefer_4g
+  cloud_wifi_fallback: false
+  forward_gps_raw_int: false
+  global_position_hz: 5.0
+  fallback_delay: 300
+ethernet:
+  interface: eth0
+  local_ip: 10.41.10.10
+  broadcast_ip: 10.41.10.255
+  pixhawk_ip: 10.41.10.2
+  pixhawk_port: 14550
+  auto_setup: true
+  subnet: '24'
+  pixhawk_connection_timeout: 30
+  allow_missing_pixhawk: true
+mavlink:
+  connection_type: prefer_ethernet
+  serial_port: /dev/ttyAMA2
+  serial_baud: 921600
+  tcp_host: 0.0.0.0
+  tcp_port: 14540
+forwarding:
+  target_host: 100.111.253.13
+  target_port: 14550
+  protocol: udp
+web:
+  port: 8080
+camera:
+  enabled: true
+  auto_start: true
+  auto_setup: true
+  mediamtx_port: 8554
+  mediamtx_webrtc_port: 8889
+  mediamtx_hls_port: 8888
+  publish_path_cam0_suffix: cam0
+  publish_path_cam1_suffix: cam1
+  primary_camera_id: 0
+  auto_memory_profile: true
+  mavlink_status_enabled: true
+  mavlink_status_hz: 1.0
+  streams:
+  - name: cam0
+    camera_id: 0
+    enabled: true
+    size:
+    - 1280
+    - 960
+    framerate: 30
+    bitrate: 6000
+    format: BGR888
+    brightness: 0.0
+    contrast: 1.0
+    exposure_time: 0
+    detection_enabled: false
+    overlay_enabled: false
+    keyframe_interval: 30
+    preset: ultrafast
+    tune: zerolatency
+    overlay_burn_enabled: false
+    landing_detection_mode: aruco
+    aruco_dictionary: DICT_4X4_50
+    gate_timeout_ms: 0
+    detect_frame_skip: 3
+    overlay_frame_skip: 5
+    detection_lost_hold_ms: 1500
+    detection_reacquire_ms: 2500
+    aruco_marker_id: 5
+    sharpness: 1.5
+    saturation: 1.0
+    lores_size:
+    - 320
+    - 240
+  - name: cam1
+    camera_id: 1
+    enabled: false
+    size:
+    - 640
+    - 480
+    framerate: 30
+    bitrate: 3000
+    format: RGB888
+    brightness: 0.0
+    contrast: 1.0
+    exposure_time: 0
+    detection_enabled: false
+    overlay_enabled: false
+    keyframe_interval: 30
+    preset: ultrafast
+    tune: zerolatency
+    overlay_burn_enabled: false
+    landing_detection_mode: contour_h
+    aruco_dictionary: DICT_4X4_50
+    gate_timeout_ms: 0
+    detect_frame_skip: 3
+    overlay_frame_skip: 5
+    aruco_marker_id: 0
+    sharpness: 1.5
+    saturation: 1.0
+    lores_size:
+    - 320
+    - 240
+    detection_lost_hold_ms: 1500
+landing:
+  environment: outdoor
+  marker_type: H
+  mode: normal
+  safety_level: 2
+  template: H
+  mavlink_enabled: false
+  mavlink_hz: 10
+  mavlink_camera_id: 1
+lcd:
+  enabled: false
+  auto_setup: false
+  overlay: i2c3-pi5
+  pins: pins_22_23
+  bus: 3
+  address: 60
+  interval: 1
+  screen_hold: 5
+  screen: alt
+video:
+  enabled: true
+  laptop_ip: "100.111.253.11"  
+  port: 5600                  
+  width: 640                
+  height: 480                
+  fps: 30                     
+  rotation: 0                 
+  bitrate_kbps: 800
+log:
+  level: info
+  verbose: false
+vpn:
+  enabled: true
+  config_file: vpn_config.json
+  server_endpoint: 45.117.171.237:51820
+  router_vpn_ip: 10.8.0.1

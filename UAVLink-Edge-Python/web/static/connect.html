@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Connection Settings - UAVLink-Edge</title>
+    <!-- Version: 2026-01-27-16:45 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="common-nav.css" rel="stylesheet">
+    <script src="common-nav.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0c1222 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-blue);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .status-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-icon {
+            font-size: 2rem;
+        }
+
+        .status-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .status-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .signal-bars {
+            display: flex;
+            gap: 0.25rem;
+            align-items: flex-end;
+            height: 30px;
+        }
+
+        .signal-bar {
+            width: 8px;
+            background: var(--border);
+            border-radius: 2px;
+            transition: background 0.3s ease;
+        }
+
+        .signal-bar.active {
+            background: var(--accent-green);
+        }
+
+        .signal-bar:nth-child(1) { height: 30%; }
+        .signal-bar:nth-child(2) { height: 50%; }
+        .signal-bar:nth-child(3) { height: 70%; }
+        .signal-bar:nth-child(4) { height: 90%; }
+        .signal-bar:nth-child(5) { height: 100%; }
+
+        .setting-section {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            font-size: 2rem;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .setting-row:hover {
+            background: var(--bg-secondary);
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .setting-desc {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(30px);
+        }
+
+        .priority-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .priority-option {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .priority-option:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-secondary);
+        }
+
+        .priority-option.active {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .priority-option-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .priority-option-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .priority-option-desc {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+            border-color: var(--accent-blue);
+        }
+
+        .connection-log {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--accent-green);
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="db-shell-header">
+        <a href="/dashboard.html" class="db-back-btn">← Về Dashboard</a>
+        <h1 class="db-shell-title">📡 Server &amp; Mạng</h1>
+    </header>
+    <div class="container" style="padding-top:1rem;">
+
+        <!-- Status Overview -->
+        <div class="status-overview">
+            <div class="status-card">
+                <div class="status-card-header">
+                    <span class="status-icon">🌐</span>
+                    <span class="status-card-title">Server Connection</span>
+                </div>
+                <div class="status-value" id="serverSignal" style="color: var(--accent-green);">●</div>
+                <div class="status-label" id="serverStatus">Connected - 45ms latency</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-card-header">
+                    <span class="status-icon">📶</span>
+                    <span class="status-card-title">WiFi Strength</span>
+                </div>
+                <div class="signal-bars" id="wifiSignal">
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar"></div>
+                </div>
+                <div class="status-label" id="wifiSpeed">Speed: 54 Mbps</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-card-header">
+                    <span class="status-icon">📡</span>
+                    <span class="status-card-title">4G Signal</span>
+                </div>
+                <div class="signal-bars" id="fourGSignal">
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar active"></div>
+                    <div class="signal-bar"></div>
+                    <div class="signal-bar"></div>
+                </div>
+                <div class="status-label" id="fourGSpeed">Speed: 12 Mbps</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-card-header">
+                    <span class="status-icon">🔄</span>
+                    <span class="status-card-title">Active Connection</span>
+                </div>
+                <div class="status-value" id="activeConnection" style="color: var(--accent-blue); font-size: 1.5rem;">WiFi</div>
+                <div class="status-label">Auto-switching enabled</div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-card-header">
+                    <span class="status-icon">📱</span>
+                    <span class="status-card-title">Current Network</span>
+                </div>
+                <div class="status-value" id="currentCarrier" style="color: var(--accent-cyan); font-size: 1.3rem;">Loading...</div>
+                <div class="status-label" id="carrierDetails">Detecting network...</div>
+            </div>
+        </div>
+
+        <!-- Uplink Mode (config.yaml → network.mode) -->
+        <div class="setting-section">
+            <div class="section-title">
+                <span class="section-icon">⚡</span>
+                Chế độ uplink server
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                Điều khiển đường truyền MAVLink/VPN lên server. SSH và dashboard admin vẫn qua WiFi.
+            </p>
+
+            <div class="priority-selector">
+                <div class="priority-option" id="mode-wifi_only" onclick="selectMode('wifi_only')">
+                    <div class="priority-option-icon">📶</div>
+                    <div class="priority-option-name">WiFi</div>
+                    <div class="priority-option-desc">Luôn dùng WiFi cho server (wlan0)</div>
+                </div>
+
+                <div class="priority-option" id="mode-prefer_4g" onclick="selectMode('prefer_4g')">
+                    <div class="priority-option-icon">📡</div>
+                    <div class="priority-option-name">4G ưu tiên</div>
+                    <div class="priority-option-desc">Ưu tiên 4G; có thể fallback WiFi khi mất sóng</div>
+                </div>
+
+                <div class="priority-option" id="mode-4g_only" onclick="selectMode('4g_only')">
+                    <div class="priority-option-icon">🔒</div>
+                    <div class="priority-option-name">Chỉ 4G</div>
+                    <div class="priority-option-desc">Không fallback WiFi cho uplink server</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary" onclick="switchNetwork('wifi')">↔ Chuyển sang WiFi ngay</button>
+                <button class="btn btn-secondary" onclick="switchNetwork('4g')">↔ Chuyển sang 4G ngay</button>
+            </div>
+            <div id="modeStatusLine" style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary);"></div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <div class="setting-section">
+            <div class="section-title">
+                <span class="section-icon">⚙️</span>
+                Advanced Settings
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-name">Fallback WiFi (khi 4G mất)</div>
+                    <div class="setting-desc">Chỉ áp dụng khi chế độ «4G ưu tiên». Tắt = khóa uplink trên 4G dù WiFi còn sóng.</div>
+                </div>
+                <div class="toggle-switch active" id="cloudWifiFallback" onclick="toggleCloudWifiFallback()"></div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-name">Reconnect on failure</div>
+                    <div class="setting-desc">Tự động kết nối lại khi mất kết nối</div>
+                </div>
+                <div class="toggle-switch active" id="autoReconnect" onclick="toggleAutoReconnect()"></div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-name">WiFi signal threshold</div>
+                    <div class="setting-desc">Ngưỡng tín hiệu WiFi tối thiểu để duy trì kết nối (-70 dBm)</div>
+                </div>
+                <select class="btn btn-secondary" id="wifiThreshold" onchange="saveSettings()">
+                    <option value="-60">Strong (-60 dBm)</option>
+                    <option value="-70" selected>Good (-70 dBm)</option>
+                    <option value="-80">Fair (-80 dBm)</option>
+                    <option value="-90">Weak (-90 dBm)</option>
+                </select>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-name">Connection timeout</div>
+                    <div class="setting-desc">Thời gian timeout khi mất kết nối (giây)</div>
+                </div>
+                <select class="btn btn-secondary" id="timeout" onchange="saveSettings()">
+                    <option value="5">5 seconds</option>
+                    <option value="10" selected>10 seconds</option>
+                    <option value="15">15 seconds</option>
+                    <option value="30">30 seconds</option>
+                </select>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-name">4G Network Mode</div>
+                    <div class="setting-desc">Chọn băng tần cho module 4G (Auto: tự động 2G/3G/4G)</div>
+                </div>
+                <select class="btn btn-secondary" id="fourGMode" onchange="set4GMode()">
+                    <option value="2" selected>Auto (2G/3G/4G)</option>
+                    <option value="38">4G Only</option>
+                    <option value="14">3G Only</option>
+                    <option value="13">2G Only</option>
+                    <option value="71">2G/3G/4G</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+                <button class="btn btn-secondary" onclick="testConnection()">🔍 Test Connection</button>
+                <button class="btn btn-secondary" onclick="reconnectNow()">🔄 Kết nối lại mạng</button>
+            </div>
+        </div>
+
+        <!-- Connection Log -->
+        <div class="setting-section">
+            <div class="section-title">
+                <span class="section-icon">📋</span>
+                Connection Log
+            </div>
+            <div class="connection-log" id="connectionLog">
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:34:56]</span>
+                    <span>WiFi connected - Signal: -65 dBm</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:34:45]</span>
+                    <span>Server connection established - Latency: 45ms</span>
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[12:34:30]</span>
+                    <span>4G module initialized - Signal: Good</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span style="font-size: 1.5rem;">✓</span>
+        <span id="notificationText">Settings saved successfully</span>
+    </div>
+
+    <script>
+        let currentMode = 'prefer_4g';
+        let cloudWifiFallback = true;
+        let autoReconnect = true;
+        let last4gConnected = null;
+        
+        // Cache để tránh nhảy UI
+        let lastNetworkState = {
+            activeInterface: null,
+            wifiSSID: null,
+            fourGOperator: null,
+            wifiIP: null,
+            fourGIP: null
+        };
+
+        // Load settings on page load
+        window.onload = function() {
+            loadSettings();
+            load4GMode();
+            updateConnectionStatus();
+            setInterval(updateConnectionStatus, 2000);
+        };
+
+        function loadSettings() {
+            Promise.all([
+                fetch('/api/network/mode').then(response => response.json()),
+                Promise.resolve(JSON.parse(localStorage.getItem('connectionUiSettings') || '{}'))
+            ])
+                .then(([modeData, localSettings]) => {
+                    currentMode = (modeData && modeData.mode) || 'prefer_4g';
+                    cloudWifiFallback = modeData.cloud_wifi_fallback !== false;
+                    autoReconnect = localSettings.auto_reconnect !== false;
+
+                    const wifiThreshold = Number.isFinite(localSettings.wifi_threshold) ? localSettings.wifi_threshold : -70;
+                    const timeout = Number.isFinite(localSettings.timeout) ? localSettings.timeout : 10;
+
+                    highlightMode(currentMode);
+                    updateModeStatusLine(modeData);
+                    document.getElementById('cloudWifiFallback').classList.toggle('active', cloudWifiFallback);
+                    document.getElementById('autoReconnect').classList.toggle('active', autoReconnect);
+                    document.getElementById('wifiThreshold').value = String(wifiThreshold);
+                    document.getElementById('timeout').value = String(timeout);
+                })
+                .catch(() => {
+                    highlightMode(currentMode);
+                });
+        }
+
+        function highlightMode(mode) {
+            document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('active'));
+            const el = document.getElementById('mode-' + mode);
+            if (el) el.classList.add('active');
+        }
+
+        function updateModeStatusLine(modeData) {
+            const line = document.getElementById('modeStatusLine');
+            if (!line || !modeData) return;
+            const active = modeData.active_interface || '—';
+            const reason = modeData.route_reason ? ` (${modeData.route_reason})` : '';
+            line.textContent = `Mode: ${modeData.mode || currentMode} · Uplink hiện tại: ${active}${reason}`;
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            highlightMode(mode);
+            addLog(`Chế độ uplink: ${mode}`);
+        }
+
+        function toggleCloudWifiFallback() {
+            cloudWifiFallback = !cloudWifiFallback;
+            document.getElementById('cloudWifiFallback').classList.toggle('active', cloudWifiFallback);
+            addLog(`Fallback WiFi ${cloudWifiFallback ? 'bật' : 'tắt'}`);
+        }
+
+        function toggleAutoReconnect() {
+            autoReconnect = !autoReconnect;
+            document.getElementById('autoReconnect').classList.toggle('active', autoReconnect);
+            addLog(`Auto-reconnect ${autoReconnect ? 'enabled' : 'disabled'}`);
+        }
+
+        function saveSettings() {
+            const uiSettings = {
+                auto_reconnect: autoReconnect,
+                wifi_threshold: parseInt(document.getElementById('wifiThreshold').value, 10),
+                timeout: parseInt(document.getElementById('timeout').value, 10)
+            };
+
+            fetch('/api/network/mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mode: currentMode,
+                    cloud_wifi_fallback: cloudWifiFallback
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('connectionUiSettings', JSON.stringify(uiSettings));
+                        showNotification('✓ Đã lưu chế độ uplink');
+                        addLog(`Mode saved: ${currentMode}`);
+                        updateModeStatusLine(data);
+                        setTimeout(updateConnectionStatus, 2500);
+                    } else {
+                        showNotification(`✗ ${data.message || 'Failed to save settings'}`, true);
+                    }
+                })
+                .catch(error => {
+                    showNotification('✗ Error: ' + error.message, true);
+                });
+        }
+
+        function switchNetwork(target) {
+            const networkName = target.toUpperCase();
+            addLog(`Switching to ${networkName}...`);
+            showNotification(`⏳ Switching to ${networkName}...`);
+
+            fetch('/api/network/switch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ target })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentMode = data.mode || (target === 'wifi' ? 'wifi_only' : 'prefer_4g');
+                        highlightMode(currentMode);
+                        showNotification(`✓ Đã chuyển sang ${networkName} (mode=${currentMode})`);
+                        addLog(`Network switch: ${networkName} → ${currentMode}`);
+                        updateModeStatusLine(data);
+                        setTimeout(updateConnectionStatus, 2500);
+                    } else {
+                        showNotification(`✗ ${data.message || 'Switch failed'}`, true);
+                        addLog(`Switch failed: ${data.message || 'unknown error'}`);
+                    }
+                })
+                .catch(error => {
+                    showNotification('✗ Error: ' + error.message, true);
+                    addLog('Switch error: ' + error.message);
+                });
+        }
+
+        function testConnection() {
+            addLog('Testing connection...');
+            showNotification('🔍 Testing connection...');
+
+            fetch('/api/network/test')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addLog(`Test successful - Latency: ${data.latency}ms`);
+                        showNotification(`✓ Connection OK - ${data.latency}ms`);
+                    } else {
+                        addLog('Test failed: ' + data.message);
+                        showNotification('✗ Connection test failed', true);
+                    }
+                })
+                .catch(error => {
+                    addLog('Test error: ' + error.message);
+                    showNotification('✗ Test error', true);
+                });
+        }
+
+        function updateConnectionStatus() {
+            // Get real network status from server
+            fetch('/api/network/status')
+                .then(response => response.json())
+                .then(data => {
+                    // Clear any error logs on successful fetch
+                    // (keep functionality as-is)
+                    
+                    // Determine active interface
+                    let activeInterface = data.active_interface;
+                    
+                    // WiFi info
+                    let wifiConnected = data.wifi && (data.wifi.status === 'connected' || data.wifi.status === 'available');
+                    let wifiIP = wifiConnected ? (data.wifi.ip || data.wifi.ip_address || 'N/A') : null;
+                    
+                    // 4G info
+                    let fourGConnected = data['4g'] && (data['4g'].status === 'connected' || data['4g'].status === 'available');
+                    let fourGIP = fourGConnected ? (data['4g'].ip || data['4g'].ip_address || 'N/A') : null;
+                    let fourGDbm = Number(data['4g']?.signal_dbm);
+                    let fourGBars = Number(data['4g']?.signal_bars);
+                    if (!Number.isFinite(fourGBars)) {
+                        fourGBars = Number.isFinite(fourGDbm) ? dbmToBars(fourGDbm) : 3;
+                    }
+                    
+                    // Update WiFi display
+                    if (wifiConnected) {
+                        updateSignalBars('wifiSignal', 4); // Default 4/5 bars when connected
+                        const wifiLabel = data.wifi.ssid || 'WiFi Network';
+                        document.getElementById('wifiSpeed').textContent = `IP: ${wifiIP}`;
+                    } else {
+                        updateSignalBars('wifiSignal', 0);
+                        document.getElementById('wifiSpeed').textContent = 'Disconnected';
+                    }
+                    
+                    // Update 4G display
+                    if (fourGConnected) {
+                        updateSignalBars('fourGSignal', fourGBars);
+                        const quality = data['4g']?.signal_quality || 'Unknown';
+                        if (Number.isFinite(fourGDbm)) {
+                            document.getElementById('fourGSpeed').textContent = `Signal: ${fourGDbm} dBm (${quality}) | IP: ${fourGIP}`;
+                        } else {
+                            document.getElementById('fourGSpeed').textContent = `Signal: ${quality} | IP: ${fourGIP}`;
+                        }
+                    } else {
+                        updateSignalBars('fourGSignal', 0);
+                        document.getElementById('fourGSpeed').textContent = 'Disconnected';
+                    }
+
+                    if (last4gConnected !== null && last4gConnected !== fourGConnected) {
+                        if (fourGConnected) {
+                            addLog('4G đã kết nối lại');
+                            showNotification('✓ 4G đã kết nối lại');
+                        } else {
+                            addLog('4G bị mất kết nối');
+                            showNotification('⚠ 4G bị mất kết nối', true);
+                        }
+                    }
+                    last4gConnected = fourGConnected;
+                    
+                    // Chỉ update carrier info nếu có thay đổi thực sự
+                    const newActiveInterface = activeInterface || (wifiConnected ? 'wifi' : (fourGConnected ? 'wwan0' : null));
+                    
+                    if (newActiveInterface !== lastNetworkState.activeInterface || 
+                        wifiIP !== lastNetworkState.wifiIP || 
+                        fourGIP !== lastNetworkState.fourGIP) {
+                        
+                        // Update cache
+                        lastNetworkState.activeInterface = newActiveInterface;
+                        lastNetworkState.wifiIP = wifiIP;
+                        lastNetworkState.fourGIP = fourGIP;
+                        
+                        // Update Active Connection card
+                        if (newActiveInterface === 'wwan0' || newActiveInterface === '4g') {
+                            document.getElementById('activeConnection').textContent = '4G/LTE';
+                            document.getElementById('activeConnection').style.color = 'var(--accent-yellow)';
+                            
+                            const carrierEl = document.getElementById('currentCarrier');
+                            const detailsEl = document.getElementById('carrierDetails');
+                            
+                            // Lấy operator từ AT commands nếu có
+                            const operator = data['4g']?.operator || lastNetworkState.fourGOperator || 'Mobile Network';
+                            lastNetworkState.fourGOperator = operator;
+                            
+                            carrierEl.innerHTML = `📱 ${operator}`;
+                            carrierEl.style.color = 'var(--accent-yellow)';
+                            detailsEl.textContent = `Type: 4G/LTE | IP: ${fourGIP}`;
+                        } else if (wifiConnected && (newActiveInterface === 'wlan0' || newActiveInterface === 'wifi' || !fourGConnected)) {
+                            document.getElementById('activeConnection').textContent = 'WiFi';
+                            document.getElementById('activeConnection').style.color = 'var(--accent-green)';
+                            
+                            const carrierEl = document.getElementById('currentCarrier');
+                            const detailsEl = document.getElementById('carrierDetails');
+                            
+                            const ssid = data.wifi?.ssid || lastNetworkState.wifiSSID || 'WiFi Network';
+                            lastNetworkState.wifiSSID = ssid;
+                            
+                            carrierEl.innerHTML = `📶 ${ssid}`;
+                            carrierEl.style.color = 'var(--accent-green)';
+                            detailsEl.textContent = `Type: WiFi | IP: ${wifiIP}`;
+                        } else if (data.ethernet && data.ethernet.status === 'connected') {
+                            document.getElementById('activeConnection').textContent = 'Ethernet';
+                            document.getElementById('activeConnection').style.color = 'var(--accent-cyan)';
+                            
+                            const carrierEl = document.getElementById('currentCarrier');
+                            const detailsEl = document.getElementById('carrierDetails');
+                            carrierEl.innerHTML = `🔌 Wired Connection`;
+                            carrierEl.style.color = 'var(--accent-cyan)';
+                            detailsEl.textContent = `Type: Ethernet | IP: ${data.ethernet.ip || 'N/A'}`;
+                        } else {
+                            document.getElementById('activeConnection').textContent = 'None';
+                            document.getElementById('activeConnection').style.color = 'var(--accent-red)';
+                            
+                            const carrierEl = document.getElementById('currentCarrier');
+                            const detailsEl = document.getElementById('carrierDetails');
+                            carrierEl.innerHTML = `⚠️ No Connection`;
+                            carrierEl.style.color = 'var(--accent-red)';
+                            detailsEl.textContent = 'Not connected to any network';
+                        }
+                    }
+                    
+                    // Update server connection status
+                    fetch('/api/status')
+                        .then(response => response.json())
+                        .then(statusData => {
+                            const serverSignal = document.getElementById('serverSignal');
+                            const serverStatus = document.getElementById('serverStatus');
+                            
+                            if (statusData.server_reachable || statusData.auth_status === 'Authenticated') {
+                                serverSignal.style.color = 'var(--accent-green)';
+                                serverSignal.textContent = '●';
+                                serverStatus.textContent = statusData.auth_status === 'Reconnecting'
+                                    ? 'Reconnecting...'
+                                    : 'Connected - Real-time';
+                            } else {
+                                serverSignal.style.color = 'var(--accent-red)';
+                                serverSignal.textContent = '●';
+                                const reason = statusData.disconnect_reason ? ` - ${statusData.disconnect_reason}` : '';
+                                serverStatus.textContent = 'Disconnected' + reason;
+                            }
+                        })
+                        .catch(err => {
+                            // Không log error nữa, giữ im lặng
+                        });
+                })
+                .catch(err => {
+                    // Giữ nguyên giá trị cũ, chỉ log vào console
+                    console.log('Network status fetch error (retrying...):', err);
+                });
+        }
+
+        function updateSignalBars(elementId, strength) {
+            const bars = document.getElementById(elementId).querySelectorAll('.signal-bar');
+            bars.forEach((bar, index) => {
+                bar.classList.toggle('active', index < strength);
+            });
+        }
+
+        function dbmToBars(dbm) {
+            if (dbm >= -75) return 5;
+            if (dbm >= -85) return 4;
+            if (dbm >= -95) return 3;
+            if (dbm >= -105) return 2;
+            if (dbm > -120) return 1;
+            return 0;
+        }
+
+        function addLog(message) {
+            const log = document.getElementById('connectionLog');
+            const now = new Date();
+            const timestamp = now.toTimeString().split(' ')[0];
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span><span>${message}</span>`;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 10 entries
+            while (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function load4GMode() {
+            fetch('/api/network/4g/mode')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.mode) {
+                        document.getElementById('fourGMode').value = data.mode.toString();
+                        addLog(`4G mode: ${data.mode_name || data.mode}`);
+                    }
+                })
+                .catch(err => {
+                    console.log('Cannot load 4G mode:', err);
+                });
+        }
+
+        function set4GMode() {
+            const mode = document.getElementById('fourGMode').value;
+            const modeNames = {
+                '2': 'Auto',
+                '13': '2G Only',
+                '14': '3G Only',
+                '38': '4G Only',
+                '71': '2G/3G/4G'
+            };
+            const modeName = modeNames[mode] || mode;
+            
+            addLog(`Setting 4G mode to ${modeName}...`);
+            showNotification(`⏳ Setting 4G mode to ${modeName}...`);
+
+            fetch('/api/network/4g/mode/set', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mode: parseInt(mode) })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const displayName = data.mode_name || modeName;
+                        showNotification(`✓ ${data.message || 'Mode changed successfully'}`);
+                        addLog(`4G mode changed to ${displayName}`);
+                        // Reload status after 2 seconds
+                        setTimeout(() => {
+                            updateConnectionStatus();
+                        }, 2000);
+                    } else {
+                        showNotification(`✗ ${data.message || 'Failed to set mode'}`, true);
+                        addLog(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    showNotification('✗ Error: ' + error.message, true);
+                    addLog('Error setting 4G mode: ' + error.message);
+                });
+        }
+
+        function showNotification(text, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = text;
+            notification.style.borderColor = isError ? 'var(--accent-red)' : 'var(--accent-green)';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function reconnectNow() {
+            addLog('Trigger reconnect...');
+            showNotification('⏳ Đang thử kết nối lại...');
+
+            fetch('/api/network/reconnect', {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('✓ Đã gửi lệnh reconnect');
+                        addLog('Reconnect command sent');
+                        setTimeout(updateConnectionStatus, 1500);
+                        setTimeout(updateConnectionStatus, 3500);
+                    } else {
+                        showNotification(`✗ ${data.message || 'Reconnect failed'}`, true);
+                        addLog(`Reconnect failed: ${data.message || 'unknown error'}`);
+                    }
+                })
+                .catch(error => {
+                    showNotification('✗ Error: ' + error.message, true);
+                    addLog('Reconnect error: ' + error.message);
+                });
+        }
+    </script>
+</body>
+</html>

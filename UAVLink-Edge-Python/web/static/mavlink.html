@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAVLink Simulator Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="common-nav.css" rel="stylesheet">
+    <script src="common-nav.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .status-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .status-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .status-ok {
+            color: var(--accent-green);
+        }
+
+        .status-err {
+            color: var(--accent-red);
+        }
+
+        .status-warn {
+            color: var(--accent-yellow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .logs-container {
+            grid-column: 1 / -1;
+            height: 400px;
+            overflow-y: auto;
+            background: #00000033;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .log-time {
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+
+        .log-INFO {
+            color: var(--text-primary);
+        }
+
+        .log-WARN {
+            color: var(--accent-yellow);
+        }
+
+        .log-ERROR {
+            color: var(--accent-red);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="db-shell-header">
+        <a href="/dashboard.html" class="db-back-btn">← Về Dashboard</a>
+        <h1 class="db-shell-title">🚁 MAVLink Monitor</h1>
+        <div class="db-shell-actions">
+            <div id="connection-status" class="status-ok" style="font-size:0.85rem;">● Connected</div>
+        </div>
+    </header>
+    <div class="container">
+
+        <div class="card">
+            <h2>System Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-label">Current IP</div>
+                    <div id="current-ip" class="status-value">Loading...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Auth Status</div>
+                    <div id="auth-status" class="status-value">Loading...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Uptime</div>
+                    <div id="uptime" class="status-value">Loading...</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Session Expiry</div>
+                    <div id="session-expiry" class="status-value">N/A</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Refresh Every</div>
+                    <div id="refresh-interval" class="status-value">N/A</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Time Remaining</div>
+                    <div id="time-remaining" class="status-value">N/A</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label" title="Mọi gói MAVLink UDP nhận trên cổng 14550 (PX4, QGC, simulator, …)">MAVLink In :14550</div>
+                    <div id="udp-raw-in" class="status-value">0 msg/s</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">UDP Uplink</div>
+                    <div id="udp-msg-rate" class="status-value">0 msg/s</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">UDP Bandwidth</div>
+                    <div id="udp-byte-rate" class="status-value">0 B/s</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Packet Statistics</h2>
+            <table id="packet-stats">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Sent</th>
+                        <th>Failed Unhealthy</th>
+                        <th>Failed Send</th>
+                        <th>Total Failed</th>
+                        <th>Send Loss Rate</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>Live Logs</h2>
+            <div id="logs" class="logs-container"></div>
+        </div>
+    </div>
+
+    <script>
+        function formatByteRate(bytesPerSec) {
+            const b = Number(bytesPerSec) || 0;
+            if (b < 1024) return b.toFixed(0) + ' B/s';
+            if (b < 1048576) return (b / 1024).toFixed(2) + ' KB/s';
+            return (b / 1048576).toFixed(2) + ' MB/s';
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('connection-status').className = 'status-ok';
+                    document.getElementById('connection-status').textContent = '● Connected';
+
+                    // Update System Status
+                    const ipEl = document.getElementById('current-ip');
+                    if (ipEl.textContent !== data.current_ip && data.current_ip !== "") {
+                        ipEl.style.color = 'var(--accent-yellow)';
+                        setTimeout(() => ipEl.style.color = '', 1000);
+                    }
+                    ipEl.textContent = data.current_ip;
+
+                    const authStatus = document.getElementById('auth-status');
+                    const serverOk = data.server_reachable || data.auth_status === 'Authenticated';
+                    authStatus.className = 'status-value ' + (serverOk ? 'status-ok' : 'status-err');
+                    if (data.auth_status === 'Reconnecting') {
+                        authStatus.textContent = 'Reconnecting...';
+                    } else if (data.auth_status === 'Disconnected' && data.disconnect_reason) {
+                        authStatus.textContent = 'Disconnected (' + data.disconnect_reason + ')';
+                    } else {
+                        authStatus.textContent = data.auth_status;
+                    }
+
+                    document.getElementById('uptime').textContent = data.uptime.split('.')[0] + 's';
+
+                    // Update Session Info
+                    if (data.session_expires && data.session_expires !== "0001-01-01T00:00:00Z") {
+                        const expiry = new Date(data.session_expires);
+                        document.getElementById('session-expiry').textContent = expiry.toLocaleTimeString('en-GB', { hour12: false });
+                        document.getElementById('refresh-interval').textContent = data.refresh_interval + 's';
+
+                        const remaining = Math.max(0, Math.round((expiry - new Date()) / 1000));
+                        const timeRemEl = document.getElementById('time-remaining');
+                        timeRemEl.textContent = remaining + 's';
+                        if (remaining < 60) {
+                            timeRemEl.className = 'status-value status-err';
+                        } else if (remaining < 120) {
+                            timeRemEl.className = 'status-value status-warn';
+                        } else {
+                            timeRemEl.className = 'status-value status-ok';
+                        }
+                    }
+
+                    const rawIn = data.udp_raw_in_per_sec || 0;
+                    const msgRate = data.mavlink_uplink_msg_per_sec || data.udp_msg_per_sec || 0;
+                    const byteRate = data.mavlink_uplink_bytes_per_sec || data.udp_bytes_per_sec || 0;
+                    document.getElementById('udp-raw-in').textContent = rawIn.toFixed(1) + ' msg/s';
+                    document.getElementById('udp-msg-rate').textContent = msgRate.toFixed(1) + ' msg/s';
+                    document.getElementById('udp-byte-rate').textContent = formatByteRate(byteRate);
+
+                    // Update Packet Statistics
+                    const tbody = document.querySelector('#packet-stats tbody');
+                    tbody.innerHTML = '';
+
+                    const keys = Object.keys(data.sent_packets).sort();
+
+                    keys.forEach(key => {
+                        const row = document.createElement('tr');
+                        const sent = data.sent_packets[key] || 0;
+                        const failedUnhealthy = data.failed_unhealthy[key] || 0;
+                        const failedSend = data.failed_send[key] || 0;
+                        const totalFailed = failedUnhealthy + failedSend;
+                        const sendTotal = sent + failedSend;
+                        // Only include real send errors in loss percentage.
+                        const lossRate = sendTotal > 0 ? ((failedSend / sendTotal) * 100).toFixed(1) : '0.0';
+
+                        row.innerHTML = `
+                            <td>${key}</td>
+                            <td>${sent}</td>
+                            <td class="${failedUnhealthy > 0 ? 'status-err' : ''}">${failedUnhealthy}</td>
+                            <td class="${failedSend > 0 ? 'status-err' : ''}">${failedSend}</td>
+                            <td class="${totalFailed > 0 ? 'status-err' : ''}">${totalFailed}</td>
+                            <td class="${totalFailed > 0 ? 'status-err' : ''}">${lossRate}%</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Update Logs
+                    const logsDiv = document.getElementById('logs');
+                    logsDiv.innerHTML = '';
+
+                    const logs = data.logs || [];
+                    logs.slice().reverse().forEach(log => {
+                        const entry = document.createElement('div');
+                        entry.className = `log-entry log-${log.level}`;
+
+                        const date = new Date(log.time);
+                        const timeStr = date.toLocaleTimeString('en-GB', { hour12: false });
+
+                        entry.innerHTML = `
+                            <span class="log-time">${timeStr}</span>
+                            <span>${log.message}</span>
+                        `;
+                        logsDiv.appendChild(entry);
+                    });
+                })
+                .catch(err => {
+                    console.error('Error fetching status:', err);
+                    document.getElementById('connection-status').className = 'status-err';
+                    document.getElementById('connection-status').textContent = '● Disconnected';
+                });
+        }
+
+        setInterval(updateStatus, 1000);
+        updateStatus();
+    </script>
+</body>
+
+</html>

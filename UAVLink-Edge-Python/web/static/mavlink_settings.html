@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAVLink Settings - UAVLink-Edge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="common-nav.css" rel="stylesheet">
+    <script src="common-nav.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0c1222 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-blue);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .alert-warning {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .radio-option {
+            flex: 1;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .radio-option:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .radio-option.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 0.5rem;
+        }
+
+        .radio-label {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="db-shell-header">
+        <a href="/dashboard.html" class="db-back-btn">← Về Dashboard</a>
+        <h1 class="db-shell-title">⚙️ MAVLink Connection Settings</h1>
+    </header>
+    <div class="container" style="padding-top:1rem;">
+
+        <div class="alert alert-warning" id="restartWarning">
+            ⚠️ Changes require service restart to take effect
+        </div>
+
+        <div class="alert" id="alertBox"></div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem;">Connection Configuration</h2>
+
+            <div class="form-group">
+                <label class="form-label">Connection Type</label>
+                <div class="radio-group">
+                    <label class="radio-option selected" id="option-prefer-ethernet">
+                        <input type="radio" name="connection_type" value="prefer_ethernet" checked>
+                        <div class="radio-label">
+                            <span>🌐</span>
+                            <div>
+                                <div>ETH ưu tiên + UART backup</div>
+                                <div class="form-description">UDP Ethernet chính, tự fallback sang UART</div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="radio-option" id="option-ethernet">
+                        <input type="radio" name="connection_type" value="ethernet">
+                        <div class="radio-label">
+                            <span>🔌</span>
+                            <div>
+                                <div>Ethernet (UDP only)</div>
+                                <div class="form-description">Chỉ nhận MAVLink qua UDP</div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="radio-option" id="option-serial">
+                        <input type="radio" name="connection_type" value="serial">
+                        <div class="radio-label">
+                            <span>🔌</span>
+                            <div>
+                                <div>Serial</div>
+                                <div class="form-description">Direct serial connection (USB/UART)</div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div id="ethernet-settings">
+                <h3 style="margin: 1.5rem 0 1rem; color: var(--text-secondary);">Ethernet Settings</h3>
+                <div class="form-group">
+                    <label class="form-label">CM5 Local IP</label>
+                    <input type="text" class="form-input" id="eth_local_ip" placeholder="10.41.10.10">
+                    <div class="form-description">IP tĩnh CM5 trên cổng Ethernet — đổi được theo mạng của bạn (mặc định 10.41.10.10)</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pixhawk IP</label>
+                    <input type="text" class="form-input" id="eth_pixhawk_ip" placeholder="10.41.10.2">
+                    <div class="form-description">IP PX4 trên cùng subnet Ethernet (mặc định 10.41.10.2)</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Broadcast IP</label>
+                    <input type="text" class="form-input" id="eth_broadcast_ip" placeholder="10.41.10.255">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Interface</label>
+                    <input type="text" class="form-input" id="eth_interface" placeholder="eth0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subnet (CIDR)</label>
+                    <input type="text" class="form-input" id="eth_subnet" placeholder="24">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Local Listen Port (PX4 → CM5)</label>
+                    <input type="number" class="form-input" id="local_listen_port" value="14550">
+                    <div class="form-description">Port CM5 lắng nghe UDP từ PX4 — khớp MAV_0_REMOTE_PRT trên PX4 (mặc định 14550). PX4 thường 10.41.10.2 gửi tới 10.41.10.10:14550.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pixhawk Port</label>
+                    <input type="number" class="form-input" id="eth_pixhawk_port" value="14550">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cloud Target Port (CM5 → Server)</label>
+                    <input type="number" class="form-input" id="target_port" value="14550" readonly>
+                    <div class="form-description">Chỉ đọc — MAVLink gửi lên Hybrid Router qua VPN (10.8.0.1:14550)</div>
+                </div>
+            </div>
+
+            <div id="serial-settings">
+                <h3 style="margin: 1.5rem 0 1rem; color: var(--text-secondary);">Serial Settings</h3>
+                <div class="form-group">
+                    <label class="form-label">UART Preset (CM5 / Pi5)</label>
+                    <select class="form-select" id="uart_preset" onchange="applyUartPreset()">
+                        <option value="custom">Tùy chỉnh</option>
+                        <option value="/dev/ttyAMA0">UART0 — /dev/ttyAMA0</option>
+                        <option value="/dev/ttyAMA1">UART1 — /dev/ttyAMA1 (GPIO 8–11)</option>
+                        <option value="/dev/ttyAMA2">UART2 / TELEM2 — /dev/ttyAMA2 (GPIO 4–7)</option>
+                        <option value="/dev/serial0">serial0 (alias UART0)</option>
+                        <option value="/dev/ttyUSB0">USB — /dev/ttyUSB0</option>
+                        <option value="/dev/ttyACM0">USB ACM — /dev/ttyACM0</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Serial Port</label>
+                    <input type="text" class="form-input" id="serial_port" value="/dev/ttyAMA2" placeholder="/dev/ttyAMA2" oninput="syncUartPreset()">
+                    <div class="form-description">UART2 GPIO 4-7 thường là /dev/ttyAMA2 (cần dtoverlay=uart2). UART1 → /dev/ttyAMA1.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Baud Rate</label>
+                    <select class="form-select" id="serial_baud">
+                        <option value="9600">9600</option>
+                        <option value="57600" selected>57600</option>
+                        <option value="115200">115200</option>
+                        <option value="230400">230400</option>
+                        <option value="460800">460800</option>
+                        <option value="921600">921600</option>
+                    </select>
+                    <div class="form-description">Common values: 57600 (default), 115200</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-primary" id="saveBtn" onclick="saveSettings()">
+                    💾 Save Settings
+                </button>
+                <button class="btn" style="background: var(--bg-primary);" onclick="loadSettings()">
+                    🔄 Reload
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const UART_PRESETS = ['/dev/ttyAMA0', '/dev/ttyAMA1', '/dev/ttyAMA2', '/dev/serial0', '/dev/ttyUSB0', '/dev/ttyACM0'];
+
+        function cfgSection(config, snake, pascal) {
+            return config[snake] || config[pascal] || {};
+        }
+
+        function cfgVal(obj, snake, pascal, fallback) {
+            if (obj[snake] !== undefined && obj[snake] !== null && obj[snake] !== '') return obj[snake];
+            if (obj[pascal] !== undefined && obj[pascal] !== null && obj[pascal] !== '') return obj[pascal];
+            return fallback;
+        }
+
+        function applyUartPreset() {
+            const preset = document.getElementById('uart_preset').value;
+            if (preset !== 'custom') {
+                document.getElementById('serial_port').value = preset;
+            }
+        }
+
+        function syncUartPreset() {
+            const port = document.getElementById('serial_port').value.trim();
+            const sel = document.getElementById('uart_preset');
+            sel.value = UART_PRESETS.includes(port) ? port : 'custom';
+        }
+
+        const connectionTypeRadios = document.querySelectorAll('input[name="connection_type"]');
+        const ethernetSettings = document.getElementById('ethernet-settings');
+        const serialSettings = document.getElementById('serial-settings');
+        const optionPreferEthernet = document.getElementById('option-prefer-ethernet');
+        const optionEthernet = document.getElementById('option-ethernet');
+        const optionSerial = document.getElementById('option-serial');
+
+        function updateConnectionTypeUI(connType) {
+            const showSerial = connType === 'serial' || connType === 'prefer_ethernet';
+            const showEthernet = connType === 'ethernet' || connType === 'prefer_ethernet';
+            ethernetSettings.style.display = showEthernet ? 'block' : 'none';
+            serialSettings.style.display = showSerial ? 'block' : 'none';
+            optionPreferEthernet.classList.toggle('selected', connType === 'prefer_ethernet');
+            optionEthernet.classList.toggle('selected', connType === 'ethernet');
+            optionSerial.classList.toggle('selected', connType === 'serial');
+        }
+
+        // Toggle settings visibility based on connection type
+        connectionTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => updateConnectionTypeUI(e.target.value));
+        });
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} show`;
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 5000);
+        }
+
+        // Load current settings
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/config/get');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const config = data.config;
+                    const net = cfgSection(config, 'network', 'Network');
+                    const eth = cfgSection(config, 'ethernet', 'Ethernet');
+                    
+                    // Set connection type
+                    const connType = cfgVal(net, 'connection_type', 'ConnectionType', 'prefer_ethernet');
+                    const radio = document.querySelector(`input[name="connection_type"][value="${connType}"]`)
+                        || document.querySelector('input[name="connection_type"][value="prefer_ethernet"]');
+                    radio.checked = true;
+                    updateConnectionTypeUI(radio.value);
+                    
+                    document.getElementById('local_listen_port').value =
+                        cfgVal(net, 'local_listen_port', 'LocalListenPort', 14550);
+                    document.getElementById('target_port').value =
+                        cfgVal(net, 'target_port', 'TargetPort', 14550);
+                    document.getElementById('serial_port').value =
+                        cfgVal(net, 'serial_port', 'SerialPort', '/dev/ttyAMA2');
+                    syncUartPreset();
+                    document.getElementById('serial_baud').value =
+                        cfgVal(net, 'serial_baud', 'SerialBaud', 57600);
+
+                    document.getElementById('eth_local_ip').value =
+                        cfgVal(eth, 'local_ip', 'LocalIP', '10.41.10.10');
+                    document.getElementById('eth_pixhawk_ip').value =
+                        cfgVal(eth, 'pixhawk_ip', 'PixhawkIP', '10.41.10.2');
+                    document.getElementById('eth_broadcast_ip').value =
+                        cfgVal(eth, 'broadcast_ip', 'BroadcastIP', '10.41.10.255');
+                    document.getElementById('eth_interface').value =
+                        cfgVal(eth, 'interface', 'Interface', 'eth0');
+                    document.getElementById('eth_subnet').value =
+                        cfgVal(eth, 'subnet', 'Subnet', '24');
+                    document.getElementById('eth_pixhawk_port').value =
+                        cfgVal(eth, 'pixhawk_port', 'PixhawkPort', 14550);
+                    
+                    console.log('Settings loaded:', net, eth);
+                } else {
+                    showAlert('Failed to load settings: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Error loading settings: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Save settings
+        async function saveSettings() {
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = '⏳ Saving...';
+
+            const connType = document.querySelector('input[name="connection_type"]:checked').value;
+            
+            const settings = {
+                connection_type: connType,
+                local_listen_port: parseInt(document.getElementById('local_listen_port').value),
+                serial_port: document.getElementById('serial_port').value,
+                serial_baud: parseInt(document.getElementById('serial_baud').value),
+                local_ip: document.getElementById('eth_local_ip').value.trim(),
+                pixhawk_ip: document.getElementById('eth_pixhawk_ip').value.trim(),
+                broadcast_ip: document.getElementById('eth_broadcast_ip').value.trim(),
+                interface: document.getElementById('eth_interface').value.trim(),
+                subnet: document.getElementById('eth_subnet').value.trim(),
+                pixhawk_port: parseInt(document.getElementById('eth_pixhawk_port').value),
+            };
+
+            try {
+                const response = await fetch('/api/config/network/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('restartWarning').classList.add('show');
+                } else {
+                    showAlert('Failed to save: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Error saving settings: ' + error.message, 'error');
+                console.error(error);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '💾 Save Settings';
+            }
+        }
+
+        // Load settings on page load
+        loadSettings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parameter Editor - UAVLink-Edge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="common-nav.css" rel="stylesheet">
+    <script src="common-nav.js"></script>
+    <style>
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #252526;
+            --bg-tertiary: #2d2d2d;
+            --bg-active: #3a3a3a;
+            --text-primary: #e5e5e5;
+            --text-secondary: #94a3b8;
+            --text-muted: #6b7280;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --accent-orange: #f97316;
+            --accent-teal: #14b8a6;
+            --border: #3f3f46;
+            --border-light: #52525b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 52px);
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1rem;
+            height: 48px;
+            gap: 1rem;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-brand:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-title {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+        }
+
+        /* Main Content Area */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            user-select: none;
+        }
+
+        .category-header:hover {
+            background: var(--bg-active);
+        }
+
+        .category-header .chevron {
+            transition: transform 0.2s;
+        }
+
+        .category-header.expanded .chevron {
+            transform: rotate(90deg);
+        }
+
+        .group-list {
+            display: none;
+        }
+
+        .group-list.visible {
+            display: block;
+        }
+
+        .group-item {
+            display: block;
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 1.5rem;
+            background: none;
+            border: none;
+            border-left: 3px solid transparent;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .group-item:hover {
+            background: var(--bg-active);
+            color: var(--text-primary);
+        }
+
+        .group-item.active {
+            background: var(--bg-active);
+            border-left-color: var(--accent-yellow);
+            color: var(--text-primary);
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            gap: 0.75rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 250px;
+        }
+
+        .search-box svg {
+            margin: 0 0.5rem;
+            color: #666;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 0.4rem 0.5rem;
+            width: 100%;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            padding: 0.4rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-secondary {
+            background: var(--bg-active);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-light);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-label input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-teal);
+        }
+
+        .spacer { flex: 1; }
+
+        .divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 0.5rem;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .connection-status.connected {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        /* Parameter Table */
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: transparent; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 10;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr {
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        tr:nth-child(even) {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        tr:nth-child(even):hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .param-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        .param-name.modified {
+            color: var(--accent-orange);
+        }
+
+        .param-value {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .param-value.modified {
+            color: var(--accent-orange);
+        }
+
+        .param-unit {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-left: 0.25rem;
+        }
+
+        .param-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            padding: 2rem;
+        }
+
+        .empty-state svg {
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: #1f2937;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 600px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-tertiary);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel {
+            background: var(--bg-active);
+            color: var(--text-primary);
+        }
+
+        .btn-save {
+            background: var(--accent-teal);
+            color: white;
+        }
+
+        .btn-send {
+            background: var(--accent-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-send.success {
+            background: var(--accent-green);
+        }
+
+        .btn-send.error {
+            background: var(--accent-red);
+        }
+
+        .modal-body {
+            padding: 1.5rem 1.25rem;
+            overflow-y: auto;
+            max-height: calc(90vh - 120px);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .param-input {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            color: black;
+            font-size: 0.95rem;
+            width: 150px;
+            text-align: right;
+        }
+
+        .param-select {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            color: black;
+            font-size: 0.875rem;
+            min-width: 200px;
+        }
+
+        .unit-label {
+            color: var(--text-muted);
+            padding-top: 0.5rem;
+        }
+
+        .btn-reset {
+            margin-left: auto;
+            background: var(--bg-active);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .param-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .param-meta {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .param-meta span {
+            margin-right: 1.5rem;
+        }
+
+        .reboot-warning {
+            color: var(--accent-orange);
+        }
+
+        .warning-box {
+            background: rgba(234, 179, 8, 0.1);
+            border-left: 3px solid var(--accent-yellow);
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .status-message {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .status-message.success {
+            background: rgba(34, 197, 94, 0.15);
+            border-left: 3px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 3px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .status-message.sending {
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        /* Bitmask checkboxes */
+        .bitmask-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .bitmask-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0;
+            font-size: 0.85rem;
+        }
+
+        .bitmask-item input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-teal);
+        }
+    </style>
+</head>
+<body>
+    <header class="db-shell-header">
+        <a href="/dashboard.html" class="db-back-btn">← Về Dashboard</a>
+        <h1 class="db-shell-title">⚙️ Parameter Editor</h1>
+        <div class="db-shell-actions">
+            <a href="mavlink.html" style="color:#94a3b8;text-decoration:none;font-size:0.85rem;">📡 MAVLink</a>
+        </div>
+    </header>
+    <div class="app-container">
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <!-- Categories and groups will be rendered here -->
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search parameters...">
+                    </div>
+                    <button class="btn btn-secondary" id="clearSearch">Clear</button>
+                    
+                    <div class="divider"></div>
+                    
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="modifiedOnly">
+                        Show modified only
+                    </label>
+
+                    <div class="spacer"></div>
+
+                    <!-- Refresh Parameters Button -->
+                    <button class="btn btn-secondary" id="refreshParams" title="Request parameters from Pixhawk">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                            <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+                        </svg>
+                        Refresh
+                    </button>
+
+                    <div class="divider"></div>
+
+                    <div class="connection-status disconnected" id="connectionStatus">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <circle cx="12" cy="20" r="1"></circle>
+                        </svg>
+                        <span id="connectionText">Disconnected</span>
+                        <button id="refreshConnection" style="background:none;border:none;cursor:pointer;color:inherit;padding:0;margin-left:4px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"></path>
+                                <path d="M1 20v-6h6"></path>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                                <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-secondary">Tools</button>
+                </div>
+
+                <!-- Table Container -->
+                <div class="table-container" id="tableContainer">
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <span>Loading parameters...</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">PARAM_NAME</span>
+                <div class="modal-actions">
+                    <button class="btn btn-cancel" id="modalCancel">Cancel</button>
+                    <button class="btn btn-send" id="modalSend">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"></path>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                        </svg>
+                        Send to Vehicle
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== State =====
+        let categories = [];
+        let parameters = [];
+        let activeCategory = '';
+        let activeGroup = '';
+        let expandedCategories = new Set();
+        let searchTerm = '';
+        let showModifiedOnly = false;
+        let editingParam = null;
+        let connectionStatus = { connected: false, systemId: 0 };
+        let paramLoadStatus = { loading: false, totalCount: 0, receivedCount: 0, progress: 0 };
+        let cachedParams = new Map(); // Map of paramId -> value from Pixhawk
+
+        // ===== API =====
+        const API_BASE = '/api';
+
+        async function checkConnection() {
+            try {
+                const res = await fetch(`${API_BASE}/connection`);
+                if (res.ok) {
+                    const data = await res.json();
+                    connectionStatus = data;
+                    updateConnectionUI();
+                }
+            } catch (e) {
+                connectionStatus = { connected: false, systemId: 0, message: 'Backend not available' };
+                updateConnectionUI();
+            }
+        }
+
+        function updateConnectionUI() {
+            const el = document.getElementById('connectionStatus');
+            const text = document.getElementById('connectionText');
+            if (connectionStatus.connected) {
+                el.className = 'connection-status connected';
+                text.textContent = `Connected (ID: ${connectionStatus.systemId})`;
+            } else {
+                el.className = 'connection-status disconnected';
+                text.textContent = 'Disconnected';
+            }
+        }
+
+        // Request parameter list from Pixhawk
+        async function requestParameterList() {
+            try {
+                const res = await fetch(`${API_BASE}/param/request-list`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    console.log('Parameter list request sent');
+                    // Start polling for status
+                    pollParameterStatus();
+                } else {
+                    console.error('Failed to request parameters:', data.message);
+                }
+                return data;
+            } catch (e) {
+                console.error('Request parameter list error:', e);
+                return { success: false, message: e.message };
+            }
+        }
+
+        // Poll parameter loading status
+        async function pollParameterStatus() {
+            const loadingEl = document.getElementById('loading');
+            
+            const poll = async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/param/status`);
+                    const status = await res.json();
+                    paramLoadStatus = status;
+                    
+                    if (status.loading) {
+                        loadingEl.innerHTML = `
+                            <div class="spinner"></div>
+                            <span>Loading parameters from Pixhawk... ${status.receivedCount}/${status.totalCount} (${status.progress.toFixed(1)}%)</span>
+                        `;
+                        loadingEl.style.display = 'flex';
+                        setTimeout(poll, 500);
+                    } else if (status.receivedCount > 0) {
+                        // Load complete, fetch all parameters
+                        await loadCachedParameters();
+                        loadingEl.style.display = 'none';
+                        renderTable();
+                    }
+                } catch (e) {
+                    console.error('Poll status error:', e);
+                }
+            };
+            
+            poll();
+        }
+
+        // Load cached parameters from backend
+        async function loadCachedParameters() {
+            try {
+                const res = await fetch(`${API_BASE}/param/list`);
+                const params = await res.json();
+                
+                if (params && Array.isArray(params)) {
+                    cachedParams.clear();
+                    params.forEach(p => {
+                        cachedParams.set(p.paramId, p.paramValue);
+                    });
+                    console.log(`Loaded ${cachedParams.size} parameters from Pixhawk cache`);
+                    
+                    // Update parameter values
+                    applyPixhawkValues();
+                }
+            } catch (e) {
+                console.error('Load cached parameters error:', e);
+            }
+        }
+
+        // Apply Pixhawk values to parameters
+        function applyPixhawkValues() {
+            let updatedCount = 0;
+            parameters.forEach(p => {
+                if (cachedParams.has(p.name)) {
+                    p.value = cachedParams.get(p.name);
+                    updatedCount++;
+                }
+            });
+            console.log(`Applied ${updatedCount} values from Pixhawk`);
+            renderTable();
+        }
+
+        // Check if there are cached parameters on page load
+        async function checkCachedParameters() {
+            try {
+                const res = await fetch(`${API_BASE}/param/status?include=params`);
+                const status = await res.json();
+                
+                if (status.receivedCount > 0 && status.parameters) {
+                    cachedParams.clear();
+                    status.parameters.forEach(p => {
+                        cachedParams.set(p.paramId, p.paramValue);
+                    });
+                    console.log(`Found ${cachedParams.size} cached parameters`);
+                    applyPixhawkValues();
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error('Check cached parameters error:', e);
+                return false;
+            }
+        }
+
+        async function setParameter(param, newValue) {
+            try {
+                const res = await fetch(`${API_BASE}/param/set`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paramName: param.name,
+                        paramValue: newValue,
+                        paramType: param.xmlType || 'INT32'
+                    })
+                });
+                const result = await res.json();
+                
+                // Update cache if successful
+                if (result.success && result.newValue !== undefined) {
+                    cachedParams.set(param.name, result.newValue);
+                }
+                
+                return result;
+            } catch (e) {
+                return { success: false, message: 'Network error: ' + e.message, paramName: param.name };
+            }
+        }
+
+        // ===== XML Parser =====
+        async function loadParameters() {
+            try {
+                document.getElementById('loading').innerHTML = `
+                    <div class="spinner"></div>
+                    <span>Loading parameter definitions...</span>
+                `;
+                
+                const res = await fetch('/PX4ParameterFactMetaData.xml');
+                const xml = await res.text();
+                parseParameterXML(xml);
+                renderSidebar();
+                
+                // Check if we have cached parameters from Pixhawk
+                const hasCached = await checkCachedParameters();
+                
+                if (!hasCached && connectionStatus.connected) {
+                    // No cache, request from Pixhawk
+                    document.getElementById('loading').innerHTML = `
+                        <div class="spinner"></div>
+                        <span>Requesting parameters from Pixhawk...</span>
+                    `;
+                    await requestParameterList();
+                } else {
+                    renderTable();
+                    document.getElementById('loading').style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Failed to load parameters:', e);
+                document.getElementById('loading').innerHTML = '<span style="color:#ef4444;">Failed to load parameters</span>';
+            }
+        }
+
+        function parseParameterXML(xmlString) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xmlString, 'text/xml');
+            const groups = doc.querySelectorAll('group');
+            const groupMap = new Map();
+
+            groups.forEach(groupEl => {
+                const groupName = groupEl.getAttribute('name') || 'Unknown';
+                const groupId = groupName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+
+                if (!groupMap.has(groupId)) {
+                    groupMap.set(groupId, { id: groupId, name: groupName });
+                }
+
+                groupEl.querySelectorAll('parameter').forEach(paramEl => {
+                    const param = parseParameter(paramEl, groupId);
+                    if (param) parameters.push(param);
+                });
+            });
+
+            // Build categories
+            const standardGroups = new Set();
+            const developerGroups = new Set();
+            const systemGroups = new Set();
+
+            parameters.forEach(p => {
+                const cat = (p.category || '').toLowerCase();
+                if (cat === 'developer') developerGroups.add(p.group);
+                else if (cat === 'system') systemGroups.add(p.group);
+                else standardGroups.add(p.group);
+            });
+
+            if (standardGroups.size > 0) {
+                categories.push({
+                    id: 'standard',
+                    name: 'Standard',
+                    groups: Array.from(standardGroups).map(id => groupMap.get(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name))
+                });
+            }
+            if (systemGroups.size > 0) {
+                categories.push({
+                    id: 'system',
+                    name: 'System',
+                    groups: Array.from(systemGroups).map(id => groupMap.get(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name))
+                });
+            }
+            if (developerGroups.size > 0) {
+                categories.push({
+                    id: 'developer',
+                    name: 'Developer',
+                    groups: Array.from(developerGroups).map(id => groupMap.get(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name))
+                });
+            }
+
+            // Set initial selection
+            if (categories.length > 0) {
+                activeCategory = categories[0].id;
+                expandedCategories.add(activeCategory);
+                if (categories[0].groups.length > 0) {
+                    activeGroup = categories[0].groups[0].id;
+                }
+            }
+        }
+
+        function parseParameter(el, groupId) {
+            const name = el.getAttribute('name');
+            if (!name) return null;
+
+            const typeAttr = el.getAttribute('type') || 'INT32';
+            const defaultValue = el.getAttribute('default') || '0';
+            const isBoolean = el.getAttribute('boolean') === 'true';
+            const isVolatile = el.getAttribute('volatile') === 'true';
+            const categoryAttr = el.getAttribute('category');
+
+            const shortDesc = getElementText(el, 'short_desc') || name;
+            const longDesc = getElementText(el, 'long_desc') || shortDesc;
+            const unit = getElementText(el, 'unit');
+            const minVal = getElementText(el, 'min');
+            const maxVal = getElementText(el, 'max');
+            const decimalPlaces = getElementText(el, 'decimal');
+            const increment = getElementText(el, 'increment');
+
+            // Parse enum values
+            const enumValues = [];
+            const valuesEl = el.querySelector('values');
+            if (valuesEl) {
+                valuesEl.querySelectorAll('value').forEach(v => {
+                    enumValues.push({ code: v.getAttribute('code') || '', description: v.textContent || '' });
+                });
+            }
+
+            // Parse bitmask
+            const bitmaskValues = [];
+            const bitmaskEl = el.querySelector('bitmask');
+            if (bitmaskEl) {
+                bitmaskEl.querySelectorAll('bit').forEach(b => {
+                    bitmaskValues.push({ index: b.getAttribute('index') || '', description: b.textContent || '' });
+                });
+            }
+
+            // Determine type
+            let paramType = 'int';
+            if (isBoolean) paramType = 'bool';
+            else if (enumValues.length > 0) paramType = 'enum';
+            else if (bitmaskValues.length > 0) paramType = 'bitmask';
+            else if (typeAttr === 'FLOAT') paramType = 'float';
+
+            // Parse default value
+            let parsedDefault = defaultValue;
+            if (paramType === 'float') parsedDefault = parseFloat(defaultValue) || 0;
+            else if (paramType === 'int' || paramType === 'bitmask' || paramType === 'bool') parsedDefault = parseInt(defaultValue, 10) || 0;
+
+            return {
+                name,
+                value: parsedDefault,
+                defaultValue: parsedDefault,
+                shortDesc,
+                longDesc,
+                group: groupId,
+                type: paramType,
+                rebootRequired: categoryAttr === 'System' || isVolatile,
+                unit: unit || undefined,
+                min: minVal ? parseFloat(minVal) : undefined,
+                max: maxVal ? parseFloat(maxVal) : undefined,
+                enumValues: enumValues.length > 0 ? enumValues : undefined,
+                bitmaskValues: bitmaskValues.length > 0 ? bitmaskValues : undefined,
+                decimalPlaces: decimalPlaces ? parseInt(decimalPlaces, 10) : undefined,
+                increment: increment ? parseFloat(increment) : undefined,
+                category: categoryAttr || undefined,
+                isVolatile,
+                xmlType: typeAttr
+            };
+        }
+
+        function getElementText(parent, tagName) {
+            const el = parent.querySelector(tagName);
+            return el?.textContent?.trim() || undefined;
+        }
+
+        // Format parameter value for display
+        function formatParamValue(param) {
+            if (param.type === 'bool') {
+                return Number(param.value) === 1 ? 'Enabled' : 'Disabled';
+            } else if (param.type === 'enum' && param.enumValues) {
+                const enumValue = param.enumValues.find(e => String(e.code) === String(param.value));
+                return enumValue ? enumValue.description : param.value;
+            } else if (param.type === 'float' && param.decimalPlaces) {
+                return Number(param.value).toFixed(param.decimalPlaces);
+            }
+            return param.value;
+        }
+
+        // ===== Render =====
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = categories.map(cat => `
+                <div class="category-header ${expandedCategories.has(cat.id) ? 'expanded' : ''}" data-category="${cat.id}">
+                    <span>${cat.name}</span>
+                    <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+                <div class="group-list ${expandedCategories.has(cat.id) ? 'visible' : ''}" data-category="${cat.id}">
+                    ${cat.groups.map(g => `
+                        <button class="group-item ${activeGroup === g.id && activeCategory === cat.id ? 'active' : ''}" data-group="${g.id}" data-category="${cat.id}">
+                            ${g.name}
+                        </button>
+                    `).join('')}
+                </div>
+            `).join('');
+
+            // Event listeners
+            sidebar.querySelectorAll('.category-header').forEach(el => {
+                el.addEventListener('click', () => {
+                    const catId = el.dataset.category;
+                    if (expandedCategories.has(catId)) {
+                        expandedCategories.delete(catId);
+                    } else {
+                        expandedCategories.add(catId);
+                    }
+                    activeCategory = catId;
+                    renderSidebar();
+                });
+            });
+
+            sidebar.querySelectorAll('.group-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    activeGroup = el.dataset.group;
+                    activeCategory = el.dataset.category;
+                    renderSidebar();
+                    renderTable();
+                });
+            });
+        }
+
+        function renderTable() {
+            const container = document.getElementById('tableContainer');
+            const filtered = parameters.filter(p => {
+                // Category filter
+                const pCat = (p.category || '').toLowerCase();
+                let matchesCat = true;
+                if (activeCategory === 'standard') matchesCat = !p.category || pCat === 'standard';
+                else if (activeCategory === 'developer') matchesCat = pCat === 'developer';
+                else if (activeCategory === 'system') matchesCat = pCat === 'system';
+
+                // Group filter
+                const matchesGroup = p.group === activeGroup;
+
+                // Search filter
+                const lowerSearch = searchTerm.toLowerCase();
+                const matchesSearch = p.name.toLowerCase().includes(lowerSearch) || p.shortDesc.toLowerCase().includes(lowerSearch);
+
+                // Modified filter
+                const isModified = String(p.value) !== String(p.defaultValue);
+                const matchesModified = showModifiedOnly ? isModified : true;
+
+                return matchesCat && matchesGroup && matchesSearch && matchesModified;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="M21 21l-4.35-4.35"></path>
+                        </svg>
+                        <p>No parameters found</p>
+                        ${searchTerm ? '<p style="font-size:0.85rem;margin-top:0.5rem;">Try clearing the search filter</p>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:220px;">Name</th>
+                            <th style="width:250px;">Value</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(p => {
+                            const isModified = String(p.value) !== String(p.defaultValue);
+                            const displayValue = formatParamValue(p);
+                            return `
+                                <tr data-param="${p.name}">
+                                    <td><span class="param-name ${isModified ? 'modified' : ''}">${p.name}</span></td>
+                                    <td>
+                                        <span class="param-value ${isModified ? 'modified' : ''}">${displayValue}</span>
+                                        ${p.unit && p.type !== 'bool' && p.type !== 'enum' ? `<span class="param-unit">${p.unit}</span>` : ''}
+                                    </td>
+                                    <td><span class="param-desc">${p.shortDesc}</span></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            // Row click handlers
+            container.querySelectorAll('tr[data-param]').forEach(row => {
+                row.addEventListener('click', () => {
+                    const paramName = row.dataset.param;
+                    editingParam = parameters.find(p => p.name === paramName);
+                    if (editingParam) openModal();
+                });
+            });
+        }
+
+        // ===== Modal =====
+        function openModal() {
+            if (!editingParam) return;
+            const p = editingParam;
+
+            document.getElementById('modalTitle').textContent = p.name;
+            
+            let inputHTML = '';
+            if (p.type === 'bool') {
+                const currentValue = Number(p.value) === 1 ? 'Enabled' : 'Disabled';
+                inputHTML = `
+                    <select id="paramInput" class="param-select">
+                        <option value="0" ${Number(p.value) === 0 ? 'selected' : ''}>Disabled</option>
+                        <option value="1" ${Number(p.value) === 1 ? 'selected' : ''}>Enabled</option>
+                    </select>
+                    <span class="current-value-label" style="margin-left: 0.5rem; color: var(--text-secondary);">Current: <strong>${currentValue}</strong></span>
+                `;
+            } else if (p.type === 'enum' && p.enumValues) {
+                inputHTML = `
+                    <select id="paramInput" class="param-select">
+                        ${p.enumValues.map(e => `<option value="${e.code}" ${String(p.value) === e.code ? 'selected' : ''}>${e.description}</option>`).join('')}
+                    </select>
+                `;
+            } else if (p.type === 'bitmask' && p.bitmaskValues) {
+                const currentVal = Number(p.value);
+                inputHTML = `
+                    <div class="bitmask-list" id="bitmaskContainer">
+                        ${p.bitmaskValues.map(b => {
+                            const bitIdx = parseInt(b.index);
+                            const bitMask = 1 << bitIdx;
+                            const isChecked = (currentVal & bitMask) !== 0;
+                            return `
+                                <label class="bitmask-item">
+                                    <input type="checkbox" data-bit="${bitIdx}" ${isChecked ? 'checked' : ''}>
+                                    Bit ${b.index}: ${b.description}
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div style="margin-top:0.5rem;color:var(--text-muted);font-size:0.85rem;">
+                        Current value: <span id="bitmaskValue">${currentVal}</span> (binary: ${currentVal.toString(2).padStart(16, '0')})
+                    </div>
+                `;
+            } else {
+                inputHTML = `
+                    <input type="number" id="paramInput" class="param-input" value="${p.value}" 
+                           step="${p.type === 'float' ? (p.increment || 'any') : '1'}"
+                           ${p.min !== undefined ? `min="${p.min}"` : ''}
+                           ${p.max !== undefined ? `max="${p.max}"` : ''}>
+                `;
+            }
+
+            document.getElementById('modalBody').innerHTML = `
+                <div class="input-row">
+                    ${inputHTML}
+                    ${p.unit && p.type !== 'bitmask' ? `<span class="unit-label">${p.unit}</span>` : ''}
+                    <button class="btn btn-reset" id="resetBtn">Reset to Default</button>
+                </div>
+                <div class="param-description">${p.longDesc}</div>
+                <div class="param-meta">
+                    ${p.min !== undefined ? `<span>Min: ${p.min}</span>` : ''}
+                    ${p.max !== undefined ? `<span>Max: ${p.max}</span>` : ''}
+                    <span>Default: ${formatParamValue({ ...p, value: p.defaultValue })}</span>
+                </div>
+                ${p.rebootRequired ? '<div class="param-meta reboot-warning">⚠️ Vehicle reboot required after change</div>' : ''}
+                <div class="warning-box">
+                    <strong>Warning:</strong> Modifying values while vehicle is in flight can lead to vehicle instability and possible vehicle loss. Make sure you know what you are doing!
+                </div>
+                <div id="statusMessage"></div>
+            `;
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (p.type === 'bitmask') {
+                    updateBitmaskCheckboxes(p.defaultValue);
+                } else {
+                    document.getElementById('paramInput').value = p.defaultValue;
+                }
+            });
+
+            // Bitmask change handler
+            if (p.type === 'bitmask') {
+                document.getElementById('bitmaskContainer').addEventListener('change', () => {
+                    const val = calculateBitmaskValue();
+                    document.getElementById('bitmaskValue').textContent = val;
+                });
+            }
+
+            // Reset send button state
+            const sendBtn = document.getElementById('modalSend');
+            sendBtn.className = 'btn btn-send';
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13"></path>
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                </svg>
+                Send to Vehicle
+            `;
+
+            document.getElementById('modalOverlay').classList.add('visible');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('visible');
+            editingParam = null;
+        }
+
+        function getModalValue() {
+            if (!editingParam) return 0;
+            if (editingParam.type === 'bitmask') {
+                return calculateBitmaskValue();
+            }
+            const input = document.getElementById('paramInput');
+            if (editingParam.type === 'float') return parseFloat(input.value) || 0;
+            return parseInt(input.value, 10) || 0;
+        }
+
+        function calculateBitmaskValue() {
+            let value = 0;
+            document.querySelectorAll('#bitmaskContainer input[type="checkbox"]').forEach(cb => {
+                if (cb.checked) {
+                    value |= (1 << parseInt(cb.dataset.bit));
+                }
+            });
+            return value;
+        }
+
+        function updateBitmaskCheckboxes(value) {
+            const val = Number(value);
+            document.querySelectorAll('#bitmaskContainer input[type="checkbox"]').forEach(cb => {
+                const bitIdx = parseInt(cb.dataset.bit);
+                cb.checked = (val & (1 << bitIdx)) !== 0;
+            });
+            document.getElementById('bitmaskValue').textContent = val;
+        }
+
+        function showStatus(type, message) {
+            const el = document.getElementById('statusMessage');
+            el.className = `status-message ${type}`;
+            let icon = '';
+            if (type === 'success') icon = '✓';
+            else if (type === 'error') icon = '✗';
+            else if (type === 'sending') icon = '↻';
+            el.innerHTML = `<span>${icon}</span> ${message}`;
+        }
+
+        // ===== Event Handlers =====
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderTable();
+        });
+
+        document.getElementById('clearSearch').addEventListener('click', () => {
+            searchTerm = '';
+            document.getElementById('searchInput').value = '';
+            renderTable();
+        });
+
+        document.getElementById('modifiedOnly').addEventListener('change', (e) => {
+            showModifiedOnly = e.target.checked;
+            renderTable();
+        });
+
+        document.getElementById('refreshConnection').addEventListener('click', checkConnection);
+
+        // Refresh parameters from Pixhawk
+        document.getElementById('refreshParams').addEventListener('click', async () => {
+            const btn = document.getElementById('refreshParams');
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; animation: spin 1s linear infinite;">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                    <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+                </svg>
+                Loading...
+            `;
+            
+            await requestParameterList();
+            
+            // Re-enable after a delay
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+                    </svg>
+                    Refresh
+                `;
+            }, 2000);
+        });
+
+        document.getElementById('modalCancel').addEventListener('click', closeModal);
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        });
+
+        document.getElementById('modalSend').addEventListener('click', async () => {
+            if (!editingParam) return;
+            const newValue = getModalValue();
+            const sendBtn = document.getElementById('modalSend');
+
+            sendBtn.disabled = true;
+            sendBtn.className = 'btn btn-send';
+            sendBtn.innerHTML = `
+                <svg class="spinner" style="width:14px;height:14px;animation:spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+                Sending...
+            `;
+            showStatus('sending', 'Sending to vehicle...');
+
+            const result = await setParameter(editingParam, newValue);
+            
+            if (result.success) {
+                sendBtn.className = 'btn btn-send success';
+                sendBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Success
+                `;
+                showStatus('success', result.message);
+                
+                // Update local value and cache
+                if (result.newValue !== undefined) {
+                    const idx = parameters.findIndex(p => p.name === editingParam.name);
+                    if (idx >= 0) {
+                        parameters[idx].value = result.newValue;
+                        cachedParams.set(editingParam.name, result.newValue);
+                    }
+                }
+                
+                // Close modal after short delay to show success message
+                setTimeout(() => {
+                    renderTable();
+                    closeModal();
+                }, 1000);
+            } else {
+                sendBtn.className = 'btn btn-send error';
+                sendBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    Failed
+                `;
+                showStatus('error', result.message);
+                
+                setTimeout(() => {
+                    sendBtn.disabled = false;
+                    sendBtn.className = 'btn btn-send';
+                    sendBtn.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"></path>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                        </svg>
+                        Send to Vehicle
+                    `;
+                }, 3000);
+            }
+        });
+
+        // ===== Init =====
+        loadParameters();
+        checkConnection();
+        
+        // Poll for updated parameters from Pixhawk cache
+        setInterval(async () => {
+            try {
+                const res = await fetch(`${API_BASE}/param/list`);
+                const params = await res.json();
+                
+                if (params && Array.isArray(params)) {
+                    let updated = false;
+                    params.forEach(p => {
+                        if (cachedParams.has(p.paramId)) {
+                            const oldValue = cachedParams.get(p.paramId);
+                            if (oldValue !== p.paramValue) {
+                                updated = true;
+                                cachedParams.set(p.paramId, p.paramValue);
+                                
+                                // Update parameter in array
+                                const idx = parameters.findIndex(param => param.name === p.paramId);
+                                if (idx >= 0) {
+                                    parameters[idx].value = p.paramValue;
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Re-render if something changed
+                    if (updated) {
+                        renderTable();
+                    }
+                }
+            } catch (e) {
+                // Silently ignore polling errors
+            }
+        }, 1000);
+        
+        setInterval(checkConnection, 3000);
+
+        // Cache parameters in localStorage for faster load on next visit
+        window.addEventListener('beforeunload', () => {
+            try {
+                localStorage.setItem('dronebridge_params_cache', JSON.stringify(parameters.map(p => ({
+                    name: p.name,
+                    value: p.value,
+                    defaultValue: p.defaultValue
+                }))));
+            } catch (e) {
+                // localStorage might be full, ignore
+            }
+        });
+    </script>
+</body>
+</html>

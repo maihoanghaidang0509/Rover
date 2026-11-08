@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light" data-font="md">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAVLink-Edge — Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="app-shell.css" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="app-layout">
+        <aside class="app-sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div class="sidebar-brand-text">
+                    <h1>UAVLink-Edge</h1>
+                    <span data-i18n="brandSub">PX4 Control Center</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebar-nav"></nav>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-toggle" id="sidebar-toggle" type="button" data-i18n-title="collapse">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    <span data-i18n="collapse">Collapse</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <div class="status-strip">
+                <button class="mobile-menu-btn" id="mobile-menu-btn" type="button" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+
+                <div class="status-pills">
+                    <div class="status-pill ok" id="pill-system">
+                        <span class="status-dot ok"></span>
+                        <span class="label" data-i18n="status.system">System</span>
+                        <span class="value">—</span>
+                    </div>
+                    <div class="status-pill" id="pill-px4">
+                        <span class="status-dot"></span>
+                        <span class="label" data-i18n="status.px4">PX4</span>
+                        <span class="value">—</span>
+                    </div>
+                    <div class="status-pill" id="pill-auth">
+                        <span class="status-dot"></span>
+                        <span class="label" data-i18n="status.auth">Auth</span>
+                        <span class="value">—</span>
+                    </div>
+                    <div class="status-pill" id="pill-network">
+                        <span class="label" data-i18n="status.network">Network</span>
+                        <span class="value">—</span>
+                    </div>
+                    <div class="status-pill" id="pill-mavlink">
+                        <span class="label" data-i18n="status.mavlink">MAVLink</span>
+                        <span class="value">—</span>
+                    </div>
+                    <div class="status-pill" id="pill-ip">
+                        <span class="label" data-i18n="status.ip">IP</span>
+                        <span class="value">—</span>
+                    </div>
+                    <div class="status-pill" id="pill-uptime">
+                        <span class="label" data-i18n="status.uptime">Uptime</span>
+                        <span class="value">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <div class="panel-settings" id="panel-settings">
+                    <h2 class="settings-page-title" data-i18n="settings.title">Cài đặt</h2>
+                    <p class="settings-page-desc" data-i18n="settings.desc">Tùy chỉnh giao diện và ngôn ngữ hệ thống</p>
+
+                    <section class="settings-section">
+                        <h3 class="settings-section-title" data-i18n="settings.appearance">Giao diện</h3>
+                        <div class="settings-card">
+                            <p class="settings-hint" data-i18n="settings.themeHint">Chọn bảng màu cho toàn bộ dashboard</p>
+                            <div class="theme-grid" id="theme-grid"></div>
+                        </div>
+                    </section>
+
+                    <section class="settings-section">
+                        <h3 class="settings-section-title" data-i18n="settings.fontSize">Cỡ chữ</h3>
+                        <div class="settings-card">
+                            <div class="segmented" id="font-size-row">
+                                <button type="button" class="option-btn" data-font="sm" data-i18n="settings.fontSm">Nhỏ</button>
+                                <button type="button" class="option-btn active" data-font="md" data-i18n="settings.fontMd">Vừa</button>
+                                <button type="button" class="option-btn" data-font="lg" data-i18n="settings.fontLg">Lớn</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-section">
+                        <h3 class="settings-section-title" data-i18n="language">Ngôn ngữ</h3>
+                        <div class="settings-card">
+                            <div class="segmented" id="lang-row">
+                                <button type="button" class="option-btn active" id="lang-vi">Tiếng Việt</button>
+                                <button type="button" class="option-btn" id="lang-en">English</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-section">
+                        <h3 class="settings-section-title" data-i18n="settings.system">Hệ thống</h3>
+                        <div class="settings-card settings-info">
+                            <p><strong>UAVLink-Edge</strong> — PX4 Control Center</p>
+                            <p data-i18n="settings.systemHint">Cài đặt phần cứng (camera, motor, GPS…) nằm tại menu <strong>Thiết bị → Cài đặt phần cứng</strong>.</p>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="panel-frame" id="panel-frame">
+                    <div id="frame-container"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app-shell.js"></script>
+</body>
+</html>
